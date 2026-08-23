@@ -358,332 +358,1658 @@ const LSK='kb_lists_v1';
    accidental edits in the cockpit, not to keep anyone out. Change it here. */
 const EDIT_PIN='7190';
 const seneca={
-  id:'seneca-v',
-  name:'Seneca V — Normal',
-  sub:'Piper PA-34-220T · from CheckMate card',
-  phases:[
-    {name:'Initial', items:[
-      {c:'Weather & Den. Alt.',r:''},{c:'Weight & Balance',r:''},{c:'Performance Req.',r:''},
-      {c:'Flight Plan',r:'FILE'},{c:'Papers',r:'A.R.O.W'},{c:'All Switches',r:'OFF'},
-      {c:'Mixtures',r:'FULL LEAN'},{c:'Crossfeeds',r:'DRAIN'},{c:'Gear Lever',r:'DOWN'},
-      {c:'Master',r:'ON'},{c:'Gear Lights',r:'3 GREEN'},{c:'Annunciator Lights',r:''},
-      {c:'Flaps',r:'EXT / CK / RETRACT'},{c:'Pitot Heat / Stall',r:'TEST'},
-      {c:'Lights',r:'INT. / EXT.'},{c:'Fuel Gauges',r:'TRUE'},{c:'Master',r:'OFF'}
-    ]},
-    {name:'Exterior', items:[
-      {k:'note',c:'After thorough geographical check'},
-      {c:'Fuel Quantity',r:''},{c:'Fuel Quality',r:''},{c:'Caps / Drains / Vents',r:''},
-      {c:'Crossfeed Drain',r:'CLOSED'},{c:'Engines / Oil / Belt',r:''},{c:'Props / Air Intakes',r:''},
-      {c:'Exhaust Systems',r:''},{c:'Surfaces & Controls',r:''},{c:'Pitot & Static Ports',r:''},
-      {c:'Deice Equipment',r:''},{c:'Gear / Tires / Brakes',r:''},{c:'Antennas / Static Wicks',r:''},
-      {c:'Baggage Doors',r:''},{c:'Ties / Chocks / Towbar',r:''},{c:'Final Walk Around',r:''}
-    ]},
-    {name:'Interior', items:[
-      {c:'Passenger Brief',r:''},{c:'Hobbs / Tach Time',r:''},{c:'Circuit Breakers',r:''},
-      {c:'Oxygen',r:''},{c:'ELT',r:'ARMED'},{c:'Alternate Static',r:''},
-      {c:'Pitot / Static',r:'DRAIN / CLOSE'}
-    ]},
-    {name:'Start', items:[
-      {c:'Seat Track / Back',r:'LOCK'},{c:'Avionics',r:'OFF'},{c:'AP',r:'OFF'},
-      {c:'Prop Sync',r:'OFF'},{c:'Alternate Air',r:'OFF'},{c:'Fuel Selectors',r:'ON'},
-      {c:'Cowl Flaps',r:'OPEN'},
-      {c:'Brakes',r:'HOLD WITH FEET',n:'Use feet — not the parking brake'},
-      {k:'section',c:'#1 Engine Start'},
-      {c:'Prop',r:'HIGH RPM'},
-      {c:'Prop',r:'CLEAR'},
-      {c:'Throttle',r:'FULL'},
-      {c:'Master',r:'ON'},
-      {c:'Fuel Pump',r:'ON'},
-      {c:'Mags',r:'ON'},
-      {c:'Mixture',r:'HOT: LEAN · COLD: FULL RICH',n:'Hot start: leave lean, advance during crank · Cold: full rich'},
-      {c:'Throttle',r:'REDUCE TO 1"'},
-      {c:'Starter',r:'ENGAGE'},
-      {c:'Mixture',r:'LEAN FOR TAXI'},
-      {c:'Throttle',r:'1000 RPM'},
-      {c:'Oil Pressure',r:''},
-      {c:'Alternators',r:'ON'},
-      {c:'Beacon',r:'ON'},
-      {c:'Fuel Pump',r:'OFF'},
-      {k:'section',c:'#2 Repeat Engine Start'},
-      {c:'Lights',r:'AS REQ.'},{c:'XFeed',r:'TEST / FUEL ON'}
-    ]},
-    {name:'Pre-Taxi / Taxi', items:[
-      {c:'Seat Belts / Harness',r:''},{c:'Heat / Vent / Defrost',r:''},{c:'Deice',r:'ELECTRIC TEST'},
-      {c:'Avionics',r:'ON'},{c:'ATIS / AWOS',r:''},{c:'Altimeter',r:''},
-      {c:'XPDR',r:'ALT + SQWK'},{c:'ADS-B',r:'ON'},{c:'Radio',r:'TEST'},
-      {c:'Taxi Light',r:'AS REQ.'},{c:'Brakes',r:'TEST'},{c:'Attitude Indic.',r:'TEST'},
-      {c:'Turn Coord.',r:'TEST'},{c:'HSI To Compass',r:'TEST'}
-    ]},
-    {name:'Run-Up', items:[
-      {c:'Brakes',r:''},{c:'Elec. Trim / Autopilot',r:''},{c:'Trim',r:'TAKEOFF'},
-      {c:'Flight Controls',r:''},{c:'Instruments',r:''},
-      {c:'1500 RPM',r:''},{c:'Mixture',r:'BEST POWER'},{c:'Feather',r:'TEST'},
-      {c:'2300 RPM',r:''},{c:'Props',r:'CYCLE / GOV.'},{c:'Alt. Air',r:'TEST / OFF'},
-      {c:'2000 RPM',r:''},{c:'Mags',r:'TEST R-L-BOTH'},{c:'Gyro Vacuum',r:''},
-      {c:'Amps / Volts',r:''},{c:'Alternators',r:'LT / RT'},{c:'Annunciator Lights',r:''},
-      {c:'Oil Pressure',r:''},{c:'Oil Temperature',r:''},{c:'Idle',r:'CHECK CLOSED'},
-      {c:'Friction Lock',r:''}
-    ]},
-    {name:'Pre-Takeoff', items:[
-      {c:'Flaps',r:'0° – 25°'},{c:'Props',r:'HIGH RPM'},{c:'Mixture',r:'FULL RICH'},
-      {c:'Fuel Pumps',r:'ON'},{c:'XPDR',r:'ALT + SQWK'},{c:'Heading Bug',r:''},
-      {c:'Doors / Windows',r:''},{c:'Pitot Heat / Deice',r:''},
-      {c:'Landing Light',r:'ON'},{c:'Strobes',r:'ON'},{c:'Time',r:'NOTE'},
-      {c:'Brakes',r:'RELEASE'},{c:'Abort Plan',r:'READY!'}
-    ]},
-    {name:'Takeoff', items:[
-      {c:'Power',r:'2600 RPM / 38" MP'},{c:'Oil Pressure',r:''},
-      {c:'Rotate',r:'81 (93)',n:'Adjust speed as needed for conditions'},
-      {c:'Vy',r:'88 (101)'},{c:'Gear',r:'UP'},{c:'Flaps',r:'UP'}
-    ]},
-    {name:'Climb', items:[
-      {c:'Climb Speed',r:'110 (127)'},{c:'Throttles',r:'32" MP'},{c:'Props',r:'2500 RPM'},
-      {c:'Mixture',r:'FULL RICH'},{c:'Fuel Pumps',r:'OFF'},{c:'Prop Sync',r:'ON'},
-      {c:'Yaw Damper',r:'ON'},{c:'Cowl Flaps',r:'AS REQ.'},{c:'Instruments',r:''},
-      {c:'Taxi / Land Light',r:'OFF'},{c:'Flight Plan',r:'OPEN'}
-    ]},
-    {name:'Cruise', items:[
-      {c:'Throttles',r:''},{c:'Props',r:''},{c:'Mixture',r:''},
-      {c:'Fuel Pumps',r:'OFF',n:'On above 10,000 ft'},
-      {c:'Cowl Flaps',r:'OPEN'},{c:'Instruments',r:''},{c:'Oxygen',r:''},
-      {c:'Fuel',r:'PROPER TANKS',n:'Fuel pump on while switching, then off after 10 seconds'}
-    ]},
-    {name:'Descent', items:[
-      {c:'Power',r:'AS REQ.'},{c:'Mixture',r:'CRUISE'},{c:'Fuel Selectors',r:'ON'},
-      {c:'Cowl Flaps',r:'CLOSE'},{c:'Defroster / Deice',r:''},{c:'ATIS / AWOS',r:''},
-      {c:'Altimeter',r:''},{c:'Instruments',r:''}
-    ]},
-    {name:'Pre-Landing', items:[
-      {c:'Brakes',r:'PEDAL TEST'},{c:'Landing Light',r:'ON'},{c:'Autopilot',r:'OFF'},
-      {c:'Yaw Damper',r:'OFF'},{c:'Prop Sync',r:'OFF'},
-      {k:'section',c:'GUMPFS'},
-      {c:'Gas',r:'ON / PUMPS ON'},{c:'Undercarriage',r:'DOWN'},{c:'Mixture',r:'FULL RICH'},
-      {c:'Props',r:'HIGH RPM'},{c:'Flaps',r:'AS REQ.'},{c:'Seatbelts',r:'& HARNESS'}
-    ]},
-    {name:'Landing', items:[
-      {c:'Gear',r:'DOWN · 3 GREEN'},{c:'Flaps',r:'40° OR AS REQ.'},{c:'Props',r:'HIGH RPM'},
-      {c:'Short Final',r:'90 (104)',n:'Adjust speed as needed for conditions'}
-    ]},
-    {name:'Go-Around', items:[
-      {c:'Power',r:'FULL'},{c:'Flaps',r:'APPROACH'},{c:'Positive Rate',r:'CLIMB'},
-      {c:'Gear',r:'UP'},{c:'Flaps',r:'RETRACT'},{c:'Cowl Flaps',r:'OPEN'}
-    ]},
-    {name:'After Landing', items:[
-      {c:'Flaps',r:'UP'},{c:'Cowl Flaps',r:'OPEN'},{c:'Fuel Pumps',r:'OFF'},
-      {c:'Strobes',r:'OFF'},{c:'Landing Light',r:'OFF'},{c:'Taxi Light',r:'AS REQ.'},
-      {c:'Deice Equip.',r:'OFF'},{c:'Pitot Heat',r:'OFF'},{c:'Trim',r:'TAKEOFF'},
-      {c:'XPDR',r:'ALT + SQWK'}
-    ]},
-    {name:'Securing', items:[
-      {c:'ELT',r:'VERIFY SILENT'},{c:'Heater',r:'2 MIN / OFF'},{c:'Avionics',r:'OFF'},
-      {c:'Mixture',r:'FULL LEAN'},{c:'Mags',r:'OFF'},
-      {c:'Master / Altntrs',r:'OFF'},{c:'Lights',r:'OFF'},{c:'Cowl Flaps',r:'CLOSE'},
-      {c:'Hobbs / Tach Time',r:''},{c:'Secure Yoke / Brakes',r:''},{c:'Chocks / Tie Downs',r:''},
-      {c:'Pitot Cover',r:''},{c:'Baggage Doors',r:''},{c:'Cabin Doors',r:''},
-      {c:'Flight Plan',r:'CLOSE'}
-    ]}
-  ],
-  vgroups:[
-    {t:'Departure',v:[
-      ['Vr','Rotation','81','93'],['Vx','Best Angle Climb','83','95'],['Vxse','Best Angle 1 Eng.','83','95'],
-      ['Vy','Best Rate Climb','88','101'],['Vyse','Best Rate 1 Eng.','88','101']
-    ]},
-    {t:'Limits & Stall',v:[
-      ['Vs0','Stall With Flaps','61','70'],['Vs','Stall w/o Flaps','67','77'],
-      ['Vmca','Min. Ctrl. 1 Eng.','66','76'],['Vsse','1 Eng. Intentional','85','98'],
-      ['Va','Max Abrupt (3500 lbs)','119','137'],['Va','Max Abrupt (Full Gross)','139','160'],
-      ['Vno','Max Structural Cruise','164','189'],['Vne','Never Exceed','204','235'],
-      ['X-Wind','Max Demo’d','17','20']
-    ]},
-    {t:'Gear & Flaps',v:[
-      ['Vle / Vlo','Gear','128','147'],['Vlr','Max Gear Retract','107','123'],
-      ['Vfe','10° Flaps','140','161'],['Vfe','25° Flaps','120','138'],['Vfe','Full Flaps','113','130']
-    ]},
-    {t:'Arrival',v:[
-      ['','Approach (flaps 10–25)','110','127'],['','Short Final (flaps 40)','90','104']
-    ]}
-  ],
-  notes:[
-    'Cruise TAS -15,000 ft: Economy 174 (200) · Normal 184 (212) · Maximum 192 (221)',
-    'Power: 27.0" Hg – 2300 RPM – 22.0 GPH · 29.0" – 2400 – 24.0 · 30.0" – 2500 – 28.0',
-    'Arrival: 19" MP initially, Props – High RPM',
-    'Short field / obstacle (reduced safety margins): Flaps 25° – 76 KIAS (87)',
-    'Avoid continuous operation between 1900 & 2100 RPM above 32" MP',
-    'Hot start: leave mixture lean, advance during crank · Cold start: full rich',
-    'Speeds shown as KIAS (MPH). Adjust starred speeds for conditions. Verify all values against your POH.'
-  ]
+ "id": "seneca-v",
+ "name": "Seneca V — Normal",
+ "sub": "Piper PA-34-220T · from CheckMate card",
+ "phases": [
+  {
+   "name": "Initial",
+   "items": [
+    {
+     "c": "Weather & Den. Alt.",
+     "r": ""
+    },
+    {
+     "c": "Weight & Balance",
+     "r": ""
+    },
+    {
+     "c": "Performance Req.",
+     "r": ""
+    },
+    {
+     "c": "Flight Plan",
+     "r": "FILE"
+    },
+    {
+     "c": "Papers",
+     "r": "A.R.O.W"
+    },
+    {
+     "c": "All Switches",
+     "r": "OFF"
+    },
+    {
+     "c": "Mixtures",
+     "r": "FULL LEAN"
+    },
+    {
+     "c": "Crossfeeds",
+     "r": "DRAIN"
+    },
+    {
+     "c": "Gear Lever",
+     "r": "DOWN"
+    },
+    {
+     "c": "Master",
+     "r": "ON"
+    },
+    {
+     "c": "Gear Lights",
+     "r": "3 GREEN"
+    },
+    {
+     "c": "Annunciator Lights",
+     "r": ""
+    },
+    {
+     "c": "Flaps",
+     "r": "EXT / CK / RETRACT"
+    },
+    {
+     "c": "Pitot Heat / Stall",
+     "r": "TEST"
+    },
+    {
+     "c": "Lights",
+     "r": "INT. / EXT."
+    },
+    {
+     "c": "Fuel Gauges",
+     "r": "TRUE"
+    },
+    {
+     "c": "Master",
+     "r": "OFF"
+    }
+   ]
+  },
+  {
+   "name": "Exterior",
+   "items": [
+    {
+     "k": "note",
+     "c": "After thorough geographical check"
+    },
+    {
+     "c": "Fuel Quantity",
+     "r": ""
+    },
+    {
+     "c": "Fuel Quality",
+     "r": ""
+    },
+    {
+     "c": "Caps / Drains / Vents",
+     "r": ""
+    },
+    {
+     "c": "Crossfeed Drain",
+     "r": "CLOSED"
+    },
+    {
+     "c": "Engines / Oil / Belt",
+     "r": ""
+    },
+    {
+     "c": "Props / Air Intakes",
+     "r": ""
+    },
+    {
+     "c": "Exhaust Systems",
+     "r": ""
+    },
+    {
+     "c": "Surfaces & Controls",
+     "r": ""
+    },
+    {
+     "c": "Pitot & Static Ports",
+     "r": ""
+    },
+    {
+     "c": "Deice Equipment",
+     "r": ""
+    },
+    {
+     "c": "Gear / Tires / Brakes",
+     "r": ""
+    },
+    {
+     "c": "Antennas / Static Wicks",
+     "r": ""
+    },
+    {
+     "c": "Baggage Doors",
+     "r": ""
+    },
+    {
+     "c": "Ties / Chocks / Towbar",
+     "r": ""
+    },
+    {
+     "c": "Final Walk Around",
+     "r": ""
+    }
+   ]
+  },
+  {
+   "name": "Interior",
+   "items": [
+    {
+     "c": "Passenger Brief",
+     "r": ""
+    },
+    {
+     "c": "Hobbs / Tach Time",
+     "r": ""
+    },
+    {
+     "c": "Circuit Breakers",
+     "r": ""
+    },
+    {
+     "c": "Oxygen",
+     "r": ""
+    },
+    {
+     "c": "ELT",
+     "r": "ARMED"
+    },
+    {
+     "c": "Alternate Static",
+     "r": ""
+    },
+    {
+     "c": "Pitot / Static",
+     "r": "DRAIN / CLOSE"
+    }
+   ]
+  },
+  {
+   "name": "Start",
+   "items": [
+    {
+     "c": "Seat Track / Back",
+     "r": "LOCK"
+    },
+    {
+     "c": "Avionics",
+     "r": "OFF"
+    },
+    {
+     "c": "AP",
+     "r": "OFF"
+    },
+    {
+     "c": "Prop Sync",
+     "r": "OFF"
+    },
+    {
+     "c": "Alternate Air",
+     "r": "OFF"
+    },
+    {
+     "c": "Fuel Selectors",
+     "r": "ON"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "OPEN"
+    },
+    {
+     "c": "Brakes",
+     "r": "HOLD WITH FEET",
+     "n": "Use feet — not the parking brake"
+    },
+    {
+     "k": "section",
+     "c": "#1 Engine Start"
+    },
+    {
+     "c": "Master",
+     "r": "ON"
+    },
+    {
+     "c": "Prop",
+     "r": "HIGH RPM"
+    },
+    {
+     "c": "Throttle",
+     "r": "FULL"
+    },
+    {
+     "c": "Fuel Pump",
+     "r": "ON"
+    },
+    {
+     "c": "Mags",
+     "r": "ON"
+    },
+    {
+     "c": "Mixture",
+     "r": "IF HOT -> LEAN · IF COLD -> FULL RICH",
+     "n": "Hot start: leave lean, advance during crank · Cold: full rich"
+    },
+    {
+     "c": "Throttle",
+     "r": "REDUCE TO 1\""
+    },
+    {
+     "c": "Prop",
+     "r": "CLEAR"
+    },
+    {
+     "c": "Starter",
+     "r": "ENGAGE"
+    },
+    {
+     "c": "Throttle",
+     "r": "1000 RPM"
+    },
+    {
+     "c": "Mixture",
+     "r": "LEAN FOR TAXI"
+    },
+    {
+     "c": "Alternator",
+     "r": "ON"
+    },
+    {
+     "c": "Fuel Pump",
+     "r": "OFF"
+    },
+    {
+     "c": "Oil Pressure",
+     "r": "CHECK"
+    },
+    {
+     "c": "Beacon",
+     "r": "ON"
+    },
+    {
+     "k": "section",
+     "c": "#2 Repeat Engine Start"
+    },
+    {
+     "c": "Lights",
+     "r": "AS REQ."
+    },
+    {
+     "c": "XFeed",
+     "r": "TEST / FUEL ON"
+    }
+   ]
+  },
+  {
+   "name": "Pre-Taxi / Taxi",
+   "items": [
+    {
+     "c": "Seat Belts / Harness",
+     "r": ""
+    },
+    {
+     "c": "Heat / Vent / Defrost",
+     "r": ""
+    },
+    {
+     "c": "Deice",
+     "r": "ELECTRIC TEST"
+    },
+    {
+     "c": "Avionics",
+     "r": "ON"
+    },
+    {
+     "c": "ATIS / AWOS",
+     "r": "GET"
+    },
+    {
+     "c": "Altimeter",
+     "r": "SET"
+    },
+    {
+     "c": "XPDR",
+     "r": "VFR"
+    },
+    {
+     "c": "ADS-B",
+     "r": "ON"
+    },
+    {
+     "c": "Radio",
+     "r": "TEST"
+    },
+    {
+     "c": "Taxi Light",
+     "r": "AS REQ."
+    },
+    {
+     "c": "Brakes",
+     "r": "TEST"
+    },
+    {
+     "c": "Attitude Indic.",
+     "r": "TEST"
+    },
+    {
+     "c": "Turn Coord.",
+     "r": "TEST"
+    },
+    {
+     "c": "HSI To Compass",
+     "r": "TEST"
+    }
+   ]
+  },
+  {
+   "name": "Run-Up",
+   "items": [
+    {
+     "c": "Brakes",
+     "r": ""
+    },
+    {
+     "c": "Elec. Trim / Autopilot",
+     "r": ""
+    },
+    {
+     "c": "Trim",
+     "r": "TAKEOFF"
+    },
+    {
+     "c": "Flight Controls",
+     "r": ""
+    },
+    {
+     "c": "Instruments",
+     "r": ""
+    },
+    {
+     "c": "Mixture",
+     "r": "BEST POWER"
+    },
+    {
+     "c": "1500 RPM",
+     "r": ""
+    },
+    {
+     "c": "Feather",
+     "r": "TEST"
+    },
+    {
+     "c": "2300 RPM",
+     "r": ""
+    },
+    {
+     "c": "Props",
+     "r": "CYCLE / GOV."
+    },
+    {
+     "c": "Alt. Air",
+     "r": "TEST / OFF"
+    },
+    {
+     "c": "2000 RPM",
+     "r": ""
+    },
+    {
+     "c": "Mags",
+     "r": "TEST R-L-BOTH"
+    },
+    {
+     "c": "Gyro Vacuum",
+     "r": ""
+    },
+    {
+     "c": "Amps / Volts",
+     "r": ""
+    },
+    {
+     "c": "Alternators",
+     "r": "LT / RT"
+    },
+    {
+     "c": "Annunciator Lights",
+     "r": "CHECK"
+    },
+    {
+     "c": "Oil Pressure",
+     "r": "CHECK"
+    },
+    {
+     "c": "Oil Temperature",
+     "r": "CHECK"
+    },
+    {
+     "c": "Idle",
+     "r": "CHECK CLOSED"
+    },
+    {
+     "c": "Friction Lock",
+     "r": "SET"
+    }
+   ]
+  },
+  {
+   "name": "Pre-Takeoff",
+   "items": [
+    {
+     "c": "Flaps",
+     "r": "0° – 25°"
+    },
+    {
+     "c": "Props",
+     "r": "HIGH RPM"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL RICH"
+    },
+    {
+     "c": "Fuel Pumps",
+     "r": "ON"
+    },
+    {
+     "c": "XPDR",
+     "r": "ALT + SQWK"
+    },
+    {
+     "c": "Heading Bug",
+     "r": "SET"
+    },
+    {
+     "c": "Doors / Windows",
+     "r": "CHECK"
+    },
+    {
+     "c": "Pitot Heat / Deice",
+     "r": ""
+    },
+    {
+     "c": "Landing Light",
+     "r": "ON"
+    },
+    {
+     "c": "Strobes",
+     "r": "ON"
+    },
+    {
+     "c": "Time",
+     "r": "NOTE"
+    },
+    {
+     "c": "Brakes",
+     "r": "RELEASE"
+    },
+    {
+     "c": "Abort Plan",
+     "r": "READY!"
+    }
+   ]
+  },
+  {
+   "name": "Takeoff",
+   "items": [
+    {
+     "c": "Power",
+     "r": "2600 RPM / 38\" MP"
+    },
+    {
+     "c": "Oil Pressure",
+     "r": "CHECK"
+    },
+    {
+     "c": "Rotate",
+     "r": "81 (93)",
+     "n": "Adjust speed as needed for conditions"
+    },
+    {
+     "c": "Vy",
+     "r": "88 (101)"
+    },
+    {
+     "c": "Gear",
+     "r": "UP"
+    },
+    {
+     "c": "Flaps",
+     "r": "UP"
+    }
+   ]
+  },
+  {
+   "name": "Climb",
+   "items": [
+    {
+     "c": "Climb Speed",
+     "r": "110 (127)"
+    },
+    {
+     "c": "Throttles",
+     "r": "32\" MP"
+    },
+    {
+     "c": "Props",
+     "r": "2500 RPM"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL RICH"
+    },
+    {
+     "c": "Fuel Pumps",
+     "r": "OFF"
+    },
+    {
+     "c": "Prop Sync",
+     "r": "ON"
+    },
+    {
+     "c": "Yaw Damper",
+     "r": "ON"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "AS REQ."
+    },
+    {
+     "c": "Instruments",
+     "r": ""
+    },
+    {
+     "c": "Taxi / Land Light",
+     "r": "OFF"
+    },
+    {
+     "c": "Flight Plan",
+     "r": "OPEN"
+    }
+   ]
+  },
+  {
+   "name": "Cruise",
+   "items": [
+    {
+     "c": "Throttles",
+     "r": ""
+    },
+    {
+     "c": "Props",
+     "r": ""
+    },
+    {
+     "c": "Mixture",
+     "r": ""
+    },
+    {
+     "c": "Fuel Pumps",
+     "r": "OFF",
+     "n": "On above 10,000 ft"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "OPEN"
+    },
+    {
+     "c": "Instruments",
+     "r": ""
+    },
+    {
+     "c": "Oxygen",
+     "r": ""
+    },
+    {
+     "c": "Fuel",
+     "r": "PROPER TANKS",
+     "n": "Fuel pump on while switching, then off after 10 seconds"
+    }
+   ]
+  },
+  {
+   "name": "Descent",
+   "items": [
+    {
+     "c": "Power",
+     "r": "AS REQ."
+    },
+    {
+     "c": "Mixture",
+     "r": "CRUISE"
+    },
+    {
+     "c": "Fuel Selectors",
+     "r": "ON"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "CLOSE"
+    },
+    {
+     "c": "Defroster / Deice",
+     "r": ""
+    },
+    {
+     "c": "ATIS / AWOS",
+     "r": ""
+    },
+    {
+     "c": "Altimeter",
+     "r": ""
+    },
+    {
+     "c": "Instruments",
+     "r": ""
+    }
+   ]
+  },
+  {
+   "name": "Pre-Landing",
+   "items": [
+    {
+     "c": "Brakes",
+     "r": "PEDAL TEST"
+    },
+    {
+     "c": "Landing Light",
+     "r": "ON"
+    },
+    {
+     "c": "Autopilot",
+     "r": "OFF"
+    },
+    {
+     "c": "Yaw Damper",
+     "r": "OFF"
+    },
+    {
+     "c": "Prop Sync",
+     "r": "OFF"
+    },
+    {
+     "k": "section",
+     "c": "GUMPFS"
+    },
+    {
+     "c": "Gas",
+     "r": "ON / PUMPS ON"
+    },
+    {
+     "c": "Undercarriage",
+     "r": "DOWN"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL RICH"
+    },
+    {
+     "c": "Props",
+     "r": "HIGH RPM"
+    },
+    {
+     "c": "Flaps",
+     "r": "AS REQ."
+    },
+    {
+     "c": "Seatbelts",
+     "r": "& HARNESS"
+    }
+   ]
+  },
+  {
+   "name": "Landing",
+   "items": [
+    {
+     "c": "Gear",
+     "r": "DOWN · 3 GREEN"
+    },
+    {
+     "c": "Flaps",
+     "r": "40° OR AS REQ."
+    },
+    {
+     "c": "Props",
+     "r": "HIGH RPM"
+    },
+    {
+     "c": "Short Final",
+     "r": "90 (104)",
+     "n": "Adjust speed as needed for conditions"
+    }
+   ]
+  },
+  {
+   "name": "Go-Around",
+   "items": [
+    {
+     "c": "Power",
+     "r": "FULL"
+    },
+    {
+     "c": "Flaps",
+     "r": "APPROACH"
+    },
+    {
+     "c": "Positive Rate",
+     "r": "CLIMB"
+    },
+    {
+     "c": "Gear",
+     "r": "UP"
+    },
+    {
+     "c": "Flaps",
+     "r": "RETRACT"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "OPEN"
+    }
+   ]
+  },
+  {
+   "name": "After Landing",
+   "items": [
+    {
+     "c": "Flaps",
+     "r": "UP"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "OPEN"
+    },
+    {
+     "c": "Fuel Pumps",
+     "r": "OFF"
+    },
+    {
+     "c": "Strobes",
+     "r": "OFF"
+    },
+    {
+     "c": "Landing Light",
+     "r": "OFF"
+    },
+    {
+     "c": "Taxi Light",
+     "r": "AS REQ."
+    },
+    {
+     "c": "Deice Equip.",
+     "r": "OFF"
+    },
+    {
+     "c": "Pitot Heat",
+     "r": "OFF"
+    },
+    {
+     "c": "Trim",
+     "r": "TAKEOFF"
+    },
+    {
+     "c": "XPDR",
+     "r": "ALT + SQWK"
+    }
+   ]
+  },
+  {
+   "name": "Securing",
+   "items": [
+    {
+     "c": "ELT",
+     "r": "VERIFY SILENT"
+    },
+    {
+     "c": "Heater",
+     "r": "2 MIN / OFF"
+    },
+    {
+     "c": "Avionics",
+     "r": "OFF"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL LEAN"
+    },
+    {
+     "c": "Mags",
+     "r": "OFF"
+    },
+    {
+     "c": "Master / Altntrs",
+     "r": "OFF"
+    },
+    {
+     "c": "Lights",
+     "r": "OFF"
+    },
+    {
+     "c": "Cowl Flaps",
+     "r": "CLOSE"
+    },
+    {
+     "c": "Hobbs / Tach Time",
+     "r": ""
+    },
+    {
+     "c": "Secure Yoke / Brakes",
+     "r": ""
+    },
+    {
+     "c": "Chocks / Tie Downs",
+     "r": ""
+    },
+    {
+     "c": "Pitot Cover",
+     "r": ""
+    },
+    {
+     "c": "Baggage Doors",
+     "r": ""
+    },
+    {
+     "c": "Cabin Doors",
+     "r": ""
+    },
+    {
+     "c": "Flight Plan",
+     "r": "CLOSE"
+    }
+   ]
+  }
+ ],
+ "vgroups": [
+  {
+   "t": "Departure",
+   "v": [
+    [
+     "Vr",
+     "Rotation",
+     "81",
+     "93"
+    ],
+    [
+     "Vx",
+     "Best Angle Climb",
+     "83",
+     "95"
+    ],
+    [
+     "Vxse",
+     "Best Angle 1 Eng.",
+     "83",
+     "95"
+    ],
+    [
+     "Vy",
+     "Best Rate Climb",
+     "88",
+     "101"
+    ],
+    [
+     "Vyse",
+     "Best Rate 1 Eng.",
+     "88",
+     "101"
+    ]
+   ]
+  },
+  {
+   "t": "Limits & Stall",
+   "v": [
+    [
+     "Vs0",
+     "Stall With Flaps",
+     "61",
+     "70"
+    ],
+    [
+     "Vs",
+     "Stall w/o Flaps",
+     "67",
+     "77"
+    ],
+    [
+     "Vmca",
+     "Min. Ctrl. 1 Eng.",
+     "66",
+     "76"
+    ],
+    [
+     "Vsse",
+     "1 Eng. Intentional",
+     "85",
+     "98"
+    ],
+    [
+     "Va",
+     "Max Abrupt (3500 lbs)",
+     "119",
+     "137"
+    ],
+    [
+     "Va",
+     "Max Abrupt (Full Gross)",
+     "139",
+     "160"
+    ],
+    [
+     "Vno",
+     "Max Structural Cruise",
+     "164",
+     "189"
+    ],
+    [
+     "Vne",
+     "Never Exceed",
+     "204",
+     "235"
+    ],
+    [
+     "X-Wind",
+     "Max Demo’d",
+     "17",
+     "20"
+    ]
+   ]
+  },
+  {
+   "t": "Gear & Flaps",
+   "v": [
+    [
+     "Vle / Vlo",
+     "Gear",
+     "128",
+     "147"
+    ],
+    [
+     "Vlr",
+     "Max Gear Retract",
+     "107",
+     "123"
+    ],
+    [
+     "Vfe",
+     "10° Flaps",
+     "140",
+     "161"
+    ],
+    [
+     "Vfe",
+     "25° Flaps",
+     "120",
+     "138"
+    ],
+    [
+     "Vfe",
+     "Full Flaps",
+     "113",
+     "130"
+    ]
+   ]
+  },
+  {
+   "t": "Arrival",
+   "v": [
+    [
+     "",
+     "Approach (flaps 10–25)",
+     "110",
+     "127"
+    ],
+    [
+     "",
+     "Short Final (flaps 40)",
+     "90",
+     "104"
+    ]
+   ]
+  }
+ ],
+ "notes": [
+  "Cruise TAS -15,000 ft: Economy 174 (200) · Normal 184 (212) · Maximum 192 (221)",
+  "Power: 27.0\" Hg – 2300 RPM – 22.0 GPH · 29.0\" – 2400 – 24.0 · 30.0\" – 2500 – 28.0",
+  "Arrival: 19\" MP initially, Props – High RPM",
+  "Short field / obstacle (reduced safety margins): Flaps 25° – 76 KIAS (87)",
+  "Avoid continuous operation between 1900 & 2100 RPM above 32\" MP",
+  "Hot start: leave mixture lean, advance during crank · Cold start: full rich",
+  "Speeds shown as KIAS (MPH). Adjust starred speeds for conditions. Verify all values against your POH."
+ ]
 };
 
 const senecaEmerg={
-  id:'seneca-v-emerg',
-  name:'Seneca V — Emergency',
-  sub:'Piper PA-34-220T · verify against POH Section 3',
-  emerg:true,
-  phases:[
-    {name:'Power Loss on Takeoff', items:[
-      {c:'Throttles',r:'CLOSE BOTH IMMEDIATELY'},
-      {c:'Brakes',r:'AS REQUIRED',n:'Stop straight ahead'},
-      {k:'section',c:'If Insufficient Runway Remains'},
-      {c:'Fuel Selectors',r:'OFF'},
-      {c:'Master & Mags',r:'OFF'},
-      {c:'Door',r:'UNLATCH'},
-      {c:'Body',r:'PROTECT'}
-    ]},
-    {name:'One Engine After Takeoff', items:[
-      {k:'note',c:'Airborne, above 85 KIAS · also one-engine go-around — avoid if possible'},
-      {c:'Directional Control',r:'MAINTAIN',n:'Quality landing area ahead?'},
-      {c:'Gear / Flaps',r:'UP'},
-      {c:'Inoperative Engine',r:'IDENTIFY'},
-      {c:'Verify',r:'CLOSE THROTTLE',n:'On inoperative engine'},
-      {c:'Prop',r:'FEATHER',n:'Inoperative engine · above 800 RPM'},
-      {c:'Mixture',r:'IDLE CUTOFF'},
-      {c:'Accelerate',r:'88 (101)'},
-      {c:'Bank 2–3° · 1/2 Ball',r:'TO OPERATIVE ENGINE'}
-    ]},
-    {name:'One Engine In Flight', items:[
-      {c:'Control Airplane',r:'85+ (98)',n:'Fly the airplane first — maintain safe airspeed'},
-      {c:'Mixtures',r:'FORWARD'},
-      {c:'Props',r:'SLOWLY FORWARD'},
-      {c:'Throttles',r:'SLOWLY FORWARD'},
-      {c:'Gear',r:'UP'},
-      {c:'Flaps',r:'UP'},
-      {c:'Inoperative Engine',r:'IDENTIFY & VERIFY',n:'Dead foot = dead engine · verify with that throttle'},
-      {k:'section',c:'Restart Attempt — Dead Engine'},
-      {k:'note',c:'All steps below on the verified dead engine'},
-      {c:'Mixture',r:'RICH'},
-      {c:'Prop',r:'FORWARD'},
-      {c:'Throttle',r:'SLOWLY FORWARD'},
-      {c:'Fuel Selector',r:'ON'},
-      {c:'Fuel Pump',r:'ON'},
-      {c:'Throttle',r:'AS NEEDED'},
-      {c:'Mags',r:'ON'},
-      {c:'Starter',r:'CRANK'},
-      {k:'section',c:'If Engine Restarts'},
-      {c:'Throttle / Props / Mixture',r:'SET FOR CRUISE'},
-      {k:'section',c:'If No Restart — Secure Dead Engine'},
-      {c:'Throttle',r:'RETARD'},
-      {c:'Prop',r:'FULL FEATHER'},
-      {c:'Mixture',r:'IDLE CUTOFF'},
-      {c:'Fuel Pump',r:'OFF'},
-      {c:'Fuel Selector',r:'OFF'},
-      {c:'Mags',r:'OFF'},
-      {c:'Alternator',r:'OFF'},
-      {c:'Cowl Flap',r:'CLOSED'},
-      {k:'section',c:'Good Engine'},
-      {c:'Cowl Flap',r:'OPEN'},
-      {c:'Crossfeed',r:'AS REQUIRED'}
-    ]},
-    {name:'Unfeather & Restart', items:[
-      {k:'section',c:'Dead Engine'},
-      {c:'Fuel Selector',r:'ON'},
-      {c:'Fuel Pump',r:'ON'},
-      {c:'Throttle',r:'HALF'},
-      {c:'Mixture',r:'FULL RICH'},
-      {c:'Prop',r:'3/4 FORWARD'},
-      {c:'Mags',r:'ON'},
-      {c:'Starter',r:'CRANK UNTIL PROP WINDMILLS'},
-      {c:'Throttle',r:'ADJUST UNTIL ENGINE STARTS'},
-      {k:'section',c:'After Start'},
-      {c:'Manifold Pressure',r:'12" UNTIL WARM'},
-      {c:'Fuel Pump',r:'OFF'},
-      {c:'Alternator',r:'ON'},
-      {c:'When Warm',r:'SET CRUISE'}
-    ]},
-    {name:'One Engine Landing', items:[
-      {c:'Inoperative Engine',r:'SECURE',n:'Maintain safe airspeed'},
-      {c:'Gear',r:'DOWN WHEN FIELD ASSURED'},
-      {c:'Flaps',r:'AS REQUIRED'},
-      {c:'Final Approach',r:'90 (104)'},
-      {c:'Full Flaps',r:'WHEN COMMITTED TO LAND'}
-    ]},
-    {name:'Both Engines Out', items:[
-      {c:'Airspeed',r:'MAINTAIN SAFE',n:'Best glide not published by manufacturer'},
-      {c:'Props',r:'FEATHER'},
-      {c:'Mixture',r:'FULL LEAN / IDLE CUTOFF'},
-      {c:'Fuel Selectors',r:'OFF'},
-      {c:'Squawk',r:'7700'},
-      {c:'Declare Emergency',r:'',n:'TWR, APP, Unicom, 121.5'},
-      {c:'Seatbelts / Harness',r:''},
-      {c:'Flaps',r:'AS NEEDED',n:'Full flaps when field assured'},
-      {c:'Gear',r:'DOWN',n:'Up if very rough or soft terrain'},
-      {c:'Master & Mags',r:'OFF'},
-      {c:'Door',r:'UNLATCH'},
-      {c:'Body',r:'PROTECT'}
-    ]},
-    {name:'Electrical Fire', items:[
-      {c:'All Electrical + Master',r:'OFF',n:'Pull CBs · Mags — On'},
-      {c:'Cabin Heat & Air',r:'OFF',n:'Vents — Open'},
-      {k:'section',c:'If Fire Out'},
-      {c:'Master',r:'ON ONLY IF CRITICAL'},
-      {c:'Essential Devices',r:'ONE AT A TIME'},
-      {c:'Circuit Breakers',r:'RESET ONLY IF CRITICAL'}
-    ]},
-    {name:'Engine Fire In Flight', items:[
-      {c:'Fuel Selector',r:'OFF',n:'Affected engine'},
-      {c:'Throttle',r:'CLOSE'},
-      {c:'Prop',r:'FEATHER'},
-      {c:'Mixture',r:'FULL LEAN / IDLE CUTOFF'},
-      {c:'Heater / Defroster',r:'OFF',n:'Cowl flap — Open'},
-      {c:'Airspeed',r:'INCREASE TO EXTINGUISH'},
-      {c:'Land',r:'ASAP'}
-    ]},
-    {name:'Engine Fire on Start', items:[
-      {c:'Mixture',r:'FULL LEAN / IDLE CUTOFF'},
-      {c:'Starter',r:'CONTINUE CRANKING'},
-      {c:'Throttle',r:'FULL OPEN'},
-      {c:'Fuel Selector',r:'OFF'},
-      {c:'Master',r:'OFF'},
-      {c:'Other Engine',r:'SHUTDOWN'},
-      {c:'Evacuate',r:'FIRE EXTINGUISHER'}
-    ]},
-    {name:'Icing', items:[
-      {c:'Pitot Heat / Deice Equip.',r:'ON'},
-      {c:'Alt. Induction Air / Static',r:'AS NEEDED'},
-      {c:'Cabin Heat & Defrost',r:'MAXIMUM'},
-      {c:'180° Turn',r:'STRONGLY CONSIDER'},
-      {c:'Altitude',r:'HIGHER OR LOWER'},
-      {c:'Engine & Prop Speed',r:'INCREASE'},
-      {c:'Full Flaps',r:'NOT RECOMMENDED',n:'For landing'},
-      {c:'Land',r:'FASTER AS NEEDED'}
-    ]},
-    {name:'Manual Gear Extension', items:[
-      {c:'Airspeed',r:'BELOW 85 (98)'},
-      {c:'Guard Clip',r:'DOWN, CLEAR OF KNOB'},
-      {c:'Landing Gear Lever',r:'LOWER'},
-      {c:'Emerg. Gear Extension Knob',r:'PULL'},
-      {c:'If Electrical System OK',r:'VERIFY GEAR LIGHTS'}
-    ]},
-    {name:'Electrical Failure', items:[
-      {k:'note',c:'Alt light illuminated — observe ammeters to determine inoperative alternator'},
-      {c:'Inop Alternator',r:'OFF, THEN ON',n:'To reset'},
-      {c:'If Remains Off',r:'REDUCE LOAD TO 85A'},
-      {k:'section',c:'If Both Alternators Failed'},
-      {c:'Electrical Load',r:'REDUCE TO MINIMUM'},
-      {c:'Both Alt Switches',r:'OFF · CHECK CBS'},
-      {c:'Alternators',r:'ON ONE AT A TIME',n:'While observing output'},
-      {c:'If Only One Restores',r:'LEAVE ON · FAULTY OFF',n:'Loads below 85A · monitor output'},
-      {c:'If Neither Restores',r:'BOTH ALT OFF',n:'Battery only — reduce load, land ASAP'}
-    ]},
-    {name:'Radio Out', items:[
-      {c:'CBs & Volume',r:'CHECK'},
-      {c:'Alt. Switch',r:'RECYCLE'},
-      {c:'If IFR & Still Out',r:'XPDR 7600',n:'Suggested for VFR in B, C, D, E airspace'}
-    ]}
-  ],
-  vgroups:[
-    {t:'Single Engine',v:[
-      ['Vmca','Min. Ctrl. 1 Eng.','66','76'],
-      ['Vsse','1 Eng. Intentional','85','98'],
-      ['Vxse','Best Angle 1 Eng.','83','95'],
-      ['Vyse','Best Rate 1 Eng.','88','101']
-    ]}
-  ],
-  notes:[
-    'Max T.O. 4750 · Max Ldg 4513 · Zero Fuel 4479 · Max Bag 185 lbs (100 lbs fwd, 85 lbs aft)',
-    'Fuel 100LL (blue) / 100 (green) · 122 gal usable · Oil 8 qts/engine (min 3, recommend 6)',
-    'Electrical 24–28 V / 85 A alternators · Tires: nose 40 PSI, mains 55 PSI',
-    'One Engine In Flight and Unfeather & Restart are personal procedures; remainder per CheckMate card. Verify all against POH Section 3.'
-  ]
+ "id": "seneca-v-emerg",
+ "name": "Seneca V — Emergency",
+ "sub": "Piper PA-34-220T · verify against POH Section 3",
+ "emerg": true,
+ "phases": [
+  {
+   "name": "Power Loss on Takeoff",
+   "items": [
+    {
+     "c": "Throttles",
+     "r": "CLOSE BOTH IMMEDIATELY"
+    },
+    {
+     "c": "Brakes",
+     "r": "AS REQUIRED",
+     "n": "Stop straight ahead"
+    },
+    {
+     "k": "section",
+     "c": "If Insufficient Runway Remains"
+    },
+    {
+     "c": "Fuel Selectors",
+     "r": "OFF"
+    },
+    {
+     "c": "Master & Mags",
+     "r": "OFF"
+    },
+    {
+     "c": "Door",
+     "r": "UNLATCH"
+    },
+    {
+     "c": "Body",
+     "r": "PROTECT"
+    }
+   ]
+  },
+  {
+   "name": "One Engine After Takeoff",
+   "items": [
+    {
+     "k": "note",
+     "c": "Airborne, above 85 KIAS · also one-engine go-around — avoid if possible"
+    },
+    {
+     "c": "Directional Control",
+     "r": "MAINTAIN",
+     "n": "Quality landing area ahead?"
+    },
+    {
+     "c": "Gear / Flaps",
+     "r": "UP"
+    },
+    {
+     "c": "Inoperative Engine",
+     "r": "IDENTIFY"
+    },
+    {
+     "c": "Verify",
+     "r": "CLOSE THROTTLE",
+     "n": "On inoperative engine"
+    },
+    {
+     "c": "Prop",
+     "r": "FEATHER",
+     "n": "Inoperative engine · above 800 RPM"
+    },
+    {
+     "c": "Mixture",
+     "r": "IDLE CUTOFF"
+    },
+    {
+     "c": "Accelerate",
+     "r": "88 (101)"
+    },
+    {
+     "c": "Bank 2–3° · 1/2 Ball",
+     "r": "TO OPERATIVE ENGINE"
+    }
+   ]
+  },
+  {
+   "name": "One Engine In Flight",
+   "items": [
+    {
+     "c": "Control Airplane",
+     "r": "85+ (98)",
+     "n": "Fly the airplane first — maintain safe airspeed"
+    },
+    {
+     "c": "Mixtures",
+     "r": "FORWARD"
+    },
+    {
+     "c": "Props",
+     "r": "SLOWLY FORWARD"
+    },
+    {
+     "c": "Throttles",
+     "r": "SLOWLY FORWARD"
+    },
+    {
+     "c": "Gear",
+     "r": "UP"
+    },
+    {
+     "c": "Flaps",
+     "r": "UP"
+    },
+    {
+     "c": "Inoperative Engine",
+     "r": "IDENTIFY & VERIFY",
+     "n": "Dead foot = dead engine · verify with that throttle"
+    },
+    {
+     "k": "section",
+     "c": "Restart Attempt — Dead Engine"
+    },
+    {
+     "k": "note",
+     "c": "All steps below on the verified dead engine"
+    },
+    {
+     "c": "Mixture",
+     "r": "RICH"
+    },
+    {
+     "c": "Prop",
+     "r": "FORWARD"
+    },
+    {
+     "c": "Throttle",
+     "r": "SLOWLY FORWARD"
+    },
+    {
+     "c": "Fuel Selector",
+     "r": "ON"
+    },
+    {
+     "c": "Fuel Pump",
+     "r": "ON"
+    },
+    {
+     "c": "Throttle",
+     "r": "AS NEEDED"
+    },
+    {
+     "c": "Mags",
+     "r": "ON"
+    },
+    {
+     "c": "Starter",
+     "r": "CRANK"
+    },
+    {
+     "k": "section",
+     "c": "If Engine Restarts"
+    },
+    {
+     "c": "Throttle / Props / Mixture",
+     "r": "SET FOR CRUISE"
+    },
+    {
+     "k": "section",
+     "c": "If No Restart — Secure Dead Engine"
+    },
+    {
+     "c": "Throttle",
+     "r": "RETARD"
+    },
+    {
+     "c": "Prop",
+     "r": "FULL FEATHER"
+    },
+    {
+     "c": "Mixture",
+     "r": "IDLE CUTOFF"
+    },
+    {
+     "c": "Fuel Pump",
+     "r": "OFF"
+    },
+    {
+     "c": "Fuel Selector",
+     "r": "OFF"
+    },
+    {
+     "c": "Mags",
+     "r": "OFF"
+    },
+    {
+     "c": "Alternator",
+     "r": "OFF"
+    },
+    {
+     "c": "Cowl Flap",
+     "r": "CLOSED"
+    },
+    {
+     "k": "section",
+     "c": "Good Engine"
+    },
+    {
+     "c": "Cowl Flap",
+     "r": "OPEN"
+    },
+    {
+     "c": "Crossfeed",
+     "r": "AS REQUIRED"
+    }
+   ]
+  },
+  {
+   "name": "Unfeather & Restart",
+   "items": [
+    {
+     "k": "section",
+     "c": "Dead Engine"
+    },
+    {
+     "c": "Fuel Selector",
+     "r": "ON"
+    },
+    {
+     "c": "Fuel Pump",
+     "r": "ON"
+    },
+    {
+     "c": "Throttle",
+     "r": "HALF"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL RICH"
+    },
+    {
+     "c": "Prop",
+     "r": "3/4 FORWARD"
+    },
+    {
+     "c": "Mags",
+     "r": "ON"
+    },
+    {
+     "c": "Starter",
+     "r": "CRANK UNTIL PROP WINDMILLS"
+    },
+    {
+     "c": "Throttle",
+     "r": "ADJUST UNTIL ENGINE STARTS"
+    },
+    {
+     "k": "section",
+     "c": "After Start"
+    },
+    {
+     "c": "Manifold Pressure",
+     "r": "12\" UNTIL WARM"
+    },
+    {
+     "c": "Fuel Pump",
+     "r": "OFF"
+    },
+    {
+     "c": "Alternator",
+     "r": "ON"
+    },
+    {
+     "c": "When Warm",
+     "r": "SET CRUISE"
+    }
+   ]
+  },
+  {
+   "name": "One Engine Landing",
+   "items": [
+    {
+     "c": "Inoperative Engine",
+     "r": "SECURE",
+     "n": "Maintain safe airspeed"
+    },
+    {
+     "c": "Gear",
+     "r": "DOWN WHEN FIELD ASSURED"
+    },
+    {
+     "c": "Flaps",
+     "r": "AS REQUIRED"
+    },
+    {
+     "c": "Final Approach",
+     "r": "90 (104)"
+    },
+    {
+     "c": "Full Flaps",
+     "r": "WHEN COMMITTED TO LAND"
+    }
+   ]
+  },
+  {
+   "name": "Both Engines Out",
+   "items": [
+    {
+     "c": "Airspeed",
+     "r": "MAINTAIN SAFE",
+     "n": "Best glide not published by manufacturer"
+    },
+    {
+     "c": "Props",
+     "r": "FEATHER"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL LEAN / IDLE CUTOFF"
+    },
+    {
+     "c": "Fuel Selectors",
+     "r": "OFF"
+    },
+    {
+     "c": "Squawk",
+     "r": "7700"
+    },
+    {
+     "c": "Declare Emergency",
+     "r": "",
+     "n": "TWR, APP, Unicom, 121.5"
+    },
+    {
+     "c": "Seatbelts / Harness",
+     "r": ""
+    },
+    {
+     "c": "Flaps",
+     "r": "AS NEEDED",
+     "n": "Full flaps when field assured"
+    },
+    {
+     "c": "Gear",
+     "r": "DOWN",
+     "n": "Up if very rough or soft terrain"
+    },
+    {
+     "c": "Master & Mags",
+     "r": "OFF"
+    },
+    {
+     "c": "Door",
+     "r": "UNLATCH"
+    },
+    {
+     "c": "Body",
+     "r": "PROTECT"
+    }
+   ]
+  },
+  {
+   "name": "Electrical Fire",
+   "items": [
+    {
+     "c": "All Electrical + Master",
+     "r": "OFF",
+     "n": "Pull CBs · Mags — On"
+    },
+    {
+     "c": "Cabin Heat & Air",
+     "r": "OFF",
+     "n": "Vents — Open"
+    },
+    {
+     "k": "section",
+     "c": "If Fire Out"
+    },
+    {
+     "c": "Master",
+     "r": "ON ONLY IF CRITICAL"
+    },
+    {
+     "c": "Essential Devices",
+     "r": "ONE AT A TIME"
+    },
+    {
+     "c": "Circuit Breakers",
+     "r": "RESET ONLY IF CRITICAL"
+    }
+   ]
+  },
+  {
+   "name": "Engine Fire In Flight",
+   "items": [
+    {
+     "c": "Fuel Selector",
+     "r": "OFF",
+     "n": "Affected engine"
+    },
+    {
+     "c": "Throttle",
+     "r": "CLOSE"
+    },
+    {
+     "c": "Prop",
+     "r": "FEATHER"
+    },
+    {
+     "c": "Mixture",
+     "r": "FULL LEAN / IDLE CUTOFF"
+    },
+    {
+     "c": "Heater / Defroster",
+     "r": "OFF",
+     "n": "Cowl flap — Open"
+    },
+    {
+     "c": "Airspeed",
+     "r": "INCREASE TO EXTINGUISH"
+    },
+    {
+     "c": "Land",
+     "r": "ASAP"
+    }
+   ]
+  },
+  {
+   "name": "Engine Fire on Start",
+   "items": [
+    {
+     "c": "Mixture",
+     "r": "FULL LEAN / IDLE CUTOFF"
+    },
+    {
+     "c": "Starter",
+     "r": "CONTINUE CRANKING"
+    },
+    {
+     "c": "Throttle",
+     "r": "FULL OPEN"
+    },
+    {
+     "c": "Fuel Selector",
+     "r": "OFF"
+    },
+    {
+     "c": "Master",
+     "r": "OFF"
+    },
+    {
+     "c": "Other Engine",
+     "r": "SHUTDOWN"
+    },
+    {
+     "c": "Evacuate",
+     "r": "FIRE EXTINGUISHER"
+    }
+   ]
+  },
+  {
+   "name": "Icing",
+   "items": [
+    {
+     "c": "Pitot Heat / Deice Equip.",
+     "r": "ON"
+    },
+    {
+     "c": "Alt. Induction Air / Static",
+     "r": "AS NEEDED"
+    },
+    {
+     "c": "Cabin Heat & Defrost",
+     "r": "MAXIMUM"
+    },
+    {
+     "c": "180° Turn",
+     "r": "STRONGLY CONSIDER"
+    },
+    {
+     "c": "Altitude",
+     "r": "HIGHER OR LOWER"
+    },
+    {
+     "c": "Engine & Prop Speed",
+     "r": "INCREASE"
+    },
+    {
+     "c": "Full Flaps",
+     "r": "NOT RECOMMENDED",
+     "n": "For landing"
+    },
+    {
+     "c": "Land",
+     "r": "FASTER AS NEEDED"
+    }
+   ]
+  },
+  {
+   "name": "Manual Gear Extension",
+   "items": [
+    {
+     "c": "Airspeed",
+     "r": "BELOW 85 (98)"
+    },
+    {
+     "c": "Guard Clip",
+     "r": "DOWN, CLEAR OF KNOB"
+    },
+    {
+     "c": "Landing Gear Lever",
+     "r": "LOWER"
+    },
+    {
+     "c": "Emerg. Gear Extension Knob",
+     "r": "PULL"
+    },
+    {
+     "c": "If Electrical System OK",
+     "r": "VERIFY GEAR LIGHTS"
+    }
+   ]
+  },
+  {
+   "name": "Electrical Failure",
+   "items": [
+    {
+     "k": "note",
+     "c": "Alt light illuminated — observe ammeters to determine inoperative alternator"
+    },
+    {
+     "c": "Inop Alternator",
+     "r": "OFF, THEN ON",
+     "n": "To reset"
+    },
+    {
+     "c": "If Remains Off",
+     "r": "REDUCE LOAD TO 85A"
+    },
+    {
+     "k": "section",
+     "c": "If Both Alternators Failed"
+    },
+    {
+     "c": "Electrical Load",
+     "r": "REDUCE TO MINIMUM"
+    },
+    {
+     "c": "Both Alt Switches",
+     "r": "OFF · CHECK CBS"
+    },
+    {
+     "c": "Alternators",
+     "r": "ON ONE AT A TIME",
+     "n": "While observing output"
+    },
+    {
+     "c": "If Only One Restores",
+     "r": "LEAVE ON · FAULTY OFF",
+     "n": "Loads below 85A · monitor output"
+    },
+    {
+     "c": "If Neither Restores",
+     "r": "BOTH ALT OFF",
+     "n": "Battery only — reduce load, land ASAP"
+    }
+   ]
+  },
+  {
+   "name": "Radio Out",
+   "items": [
+    {
+     "c": "CBs & Volume",
+     "r": "CHECK"
+    },
+    {
+     "c": "Alt. Switch",
+     "r": "RECYCLE"
+    },
+    {
+     "c": "If IFR & Still Out",
+     "r": "XPDR 7600",
+     "n": "Suggested for VFR in B, C, D, E airspace"
+    }
+   ]
+  }
+ ],
+ "vgroups": [
+  {
+   "t": "Single Engine",
+   "v": [
+    [
+     "Vmca",
+     "Min. Ctrl. 1 Eng.",
+     "66",
+     "76"
+    ],
+    [
+     "Vsse",
+     "1 Eng. Intentional",
+     "85",
+     "98"
+    ],
+    [
+     "Vxse",
+     "Best Angle 1 Eng.",
+     "83",
+     "95"
+    ],
+    [
+     "Vyse",
+     "Best Rate 1 Eng.",
+     "88",
+     "101"
+    ]
+   ]
+  }
+ ],
+ "notes": [
+  "Max T.O. 4750 · Max Ldg 4513 · Zero Fuel 4479 · Max Bag 185 lbs (100 lbs fwd, 85 lbs aft)",
+  "Fuel 100LL (blue) / 100 (green) · 122 gal usable · Oil 8 qts/engine (min 3, recommend 6)",
+  "Electrical 24–28 V / 85 A alternators · Tires: nose 40 PSI, mains 55 PSI",
+  "One Engine In Flight and Unfeather & Restart are personal procedures; remainder per CheckMate card. Verify all against POH Section 3."
+ ]
 };
 
 /* ================= storage ================= */
@@ -703,7 +2029,7 @@ function loadChk(id){ try{return JSON.parse(localStorage.getItem(chkKey(id))||'{
 function saveChk(id,o){ try{localStorage.setItem(chkKey(id),JSON.stringify(o));}catch(e){} }
 
 /* seed migration: replace/add built-in lists when their bundled version advances */
-const SEED_V=7;
+const SEED_V=8;
 (function(){
   try{
     const v=+(localStorage.getItem('kb_seed_v')||1);
