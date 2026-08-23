@@ -1,0 +1,1087 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kneeboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#F4F6F4; --surface:#FFFFFF; --surface2:#EDF0ED;
+    --ink:#171D1A; --muted:#5C6662; --faint:#8B948F;
+    --line:#DFE4DF; --line2:#CBD2CC;
+    --mag:#B0107A; --mag-bg:#FBEDF5;
+    --grn:#177A45; --grn-bg:#EAF5EE;
+    --amb:#96660A; --amb-bg:#FBF3E2;
+    --red:#B3261E; --red-bg:#FBECEA;
+    --val:#0A6E8C;
+    --chip:#E7EBE7;
+    --shadow:0 1px 3px rgba(20,28,24,.10),0 6px 18px rgba(20,28,24,.06);
+    --sheet-shadow:0 -8px 32px rgba(10,14,12,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A0D0C; --surface:#141917; --surface2:#1B211E;
+      --ink:#E4EAE5; --muted:#939D97; --faint:#6B756F;
+      --line:#242B27; --line2:#333C37;
+      --mag:#F45FB5; --mag-bg:#2A1522;
+      --grn:#41C07C; --grn-bg:#12271B;
+      --amb:#E2A93F; --amb-bg:#292013;
+      --red:#FF6E61; --red-bg:#2C1512;
+      --val:#7CD6E8;
+      --chip:#1E2521;
+      --shadow:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35);
+      --sheet-shadow:0 -8px 32px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A0D0C; --surface:#141917; --surface2:#1B211E;
+    --ink:#E4EAE5; --muted:#939D97; --faint:#6B756F;
+    --line:#242B27; --line2:#333C37;
+    --mag:#F45FB5; --mag-bg:#2A1522;
+    --grn:#41C07C; --grn-bg:#12271B;
+    --amb:#E2A93F; --amb-bg:#292013;
+    --red:#FF6E61; --red-bg:#2C1512;
+    --val:#7CD6E8;
+    --chip:#1E2521;
+    --shadow:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35);
+    --sheet-shadow:0 -8px 32px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.45;
+    min-height:100vh;
+    -webkit-text-size-adjust:100%;
+  }
+  button{font-family:inherit; color:inherit; background:none; border:none; cursor:pointer; padding:0;}
+  input,textarea,select{font-family:inherit; font-size:16px; color:var(--ink); background:var(--surface); border:1px solid var(--line2); border-radius:8px; padding:10px 12px;}
+  input:focus,textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--val); outline-offset:1px;}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  .cond{font-family:'Barlow Condensed','IBM Plex Sans',sans-serif; text-transform:uppercase; letter-spacing:.06em;}
+
+  #app{max-width:640px; margin:0 auto; padding:0 0 96px;}
+  @media(min-width:900px){ #app.run-mode{max-width:960px;} }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    padding:10px 14px 8px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .topbar .tb-title{flex:1; min-width:0;}
+  .topbar h1{
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em;
+    font-size:20px; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .topbar .sub{font-size:12px; color:var(--muted); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .iconbtn{
+    width:42px; height:42px; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:10px; border:1px solid var(--line);
+    background:var(--surface); color:var(--muted);
+    font-size:17px;
+  }
+  .iconbtn:active{background:var(--surface2);}
+  .pctring{
+    width:42px;height:42px;flex:0 0 auto;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+    color:var(--muted);
+  }
+
+  /* ---------- phase rail (mobile horizontal) ---------- */
+  .rail{
+    position:sticky; top:61px; z-index:30;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    display:flex; gap:8px; overflow-x:auto; padding:10px 14px;
+    scrollbar-width:none;
+  }
+  .rail::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto; display:flex; align-items:center; gap:7px;
+    padding:8px 13px; border-radius:999px;
+    background:var(--chip); border:1px solid transparent;
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em;
+    font-size:15px; font-weight:600; color:var(--muted);
+    white-space:nowrap;
+  }
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--line2);flex:0 0 auto;}
+  .chip.done{color:var(--grn);}
+  .chip.done .dot{background:var(--grn);}
+  .chip.part .dot{background:var(--amb);}
+  .chip.active{background:var(--surface); border-color:var(--mag); color:var(--ink); box-shadow:var(--shadow);}
+  .chip.active .dot{background:var(--mag);}
+  /* emergency checklist: red accent instead of magenta */
+  .emerg .chip.active{border-color:var(--red);}
+  .emerg .chip.active .dot{background:var(--red);}
+  .emerg .phasehead h2{color:var(--red);}
+  .emerg .row.current{background:var(--red-bg);}
+  .emerg .row.current::before{background:var(--red);}
+  .cl-card.emg{border-left:4px solid var(--red);}
+  .cl-card.emg h3{color:var(--red);}
+
+  /* ---------- desktop / iPad split ---------- */
+  .runwrap{display:block;}
+  .sidebar{display:none;}
+  @media(min-width:900px){
+    .runwrap{display:grid; grid-template-columns:230px 1fr; gap:24px; padding:0 20px;}
+    .rail{display:none;}
+    .sidebar{display:block; position:sticky; top:75px; align-self:start; padding-top:16px;}
+    .sidebar .chip{display:flex; width:100%; margin-bottom:6px; border-radius:10px; justify-content:flex-start;}
+    .sidebar .chip .cnt{margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0;}
+    .phasepane{min-width:0; max-width:640px;}
+  }
+
+  /* ---------- checklist rows ---------- */
+  .phasehead{
+    display:flex; align-items:baseline; gap:10px;
+    padding:22px 16px 10px;
+  }
+  .phasehead h2{
+    margin:0; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase;
+    letter-spacing:.07em; font-size:26px; font-weight:700;
+  }
+  .phasehead .count{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted);}
+  .phasehead .resetph{margin-left:auto; font-size:12px; color:var(--faint); text-decoration:underline; text-underline-offset:3px;}
+
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    margin:0 12px; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .row{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    min-height:54px; padding:11px 14px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+    transition:background .12s;
+  }
+  .row:last-child{border-bottom:none;}
+  .row .box{
+    width:24px;height:24px;flex:0 0 auto;border-radius:7px;
+    border:2px solid var(--line2); display:flex;align-items:center;justify-content:center;
+    font-size:14px; color:transparent; transition:all .12s;
+  }
+  .row .rc{flex:1; min-width:0; display:flex; align-items:baseline; gap:8px;}
+  .row .ch{font-weight:600; font-size:16.5px;}
+  .row .lead{flex:1; border-bottom:2px dotted var(--line2); transform:translateY(-4px); min-width:16px;}
+  .row .rv{
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px;
+    color:var(--val); text-align:right; white-space:nowrap;
+  }
+  .row .nt{display:block; font-size:12.5px; color:var(--amb); font-weight:500; margin-top:2px;}
+  .row.current{background:var(--mag-bg);}
+  .row.current::before{
+    content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--mag);
+  }
+  .row.done .box{background:var(--grn); border-color:var(--grn); color:#fff;}
+  .row.done .ch,.row.done .rv{opacity:.42;}
+  .row.done .nt{opacity:.42;}
+  .row.done .lead{opacity:.35;}
+  .srow{
+    padding:14px 16px 6px; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase;
+    letter-spacing:.09em; font-size:15px; font-weight:700; color:var(--amb);
+    border-bottom:1px solid var(--line); background:var(--surface2);
+    display:flex; align-items:center; gap:8px; padding-top:9px; padding-bottom:9px;
+  }
+  .nrow{
+    padding:10px 16px; font-size:13px; color:var(--muted); font-style:italic;
+    border-bottom:1px solid var(--line); background:var(--surface2);
+  }
+
+  /* ---------- phase complete banner ---------- */
+  .donebanner{
+    margin:14px 12px 0; border-radius:14px;
+    background:var(--grn-bg); border:1px solid var(--grn);
+    padding:16px; display:flex; align-items:center; gap:12px;
+  }
+  .donebanner .dtxt{flex:1;}
+  .donebanner .dtxt b{color:var(--grn); font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:18px;}
+  .nextbtn{
+    background:var(--grn); color:#fff; border-radius:10px;
+    padding:12px 18px; font-weight:700; font-size:15px;
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.06em;
+    flex:0 0 auto;
+  }
+  .allday{
+    margin:14px 12px 0; border-radius:14px; text-align:center;
+    background:var(--grn-bg); border:1px solid var(--grn); padding:22px 16px;
+  }
+  .allday b{color:var(--grn); font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.07em; font-size:22px; display:block; margin-bottom:4px;}
+  .allday span{color:var(--muted); font-size:13px;}
+
+  /* ---------- bottom bar ---------- */
+  .bottombar{
+    position:fixed; bottom:0; left:0; right:0; z-index:45;
+    display:flex; justify-content:center; gap:10px;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:var(--bg); border-top:1px solid var(--line);
+  }
+  .bb-btn{
+    display:flex; align-items:center; gap:8px;
+    padding:11px 20px; border-radius:12px;
+    background:var(--surface); border:1px solid var(--line2);
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.06em;
+    font-weight:700; font-size:16px; color:var(--ink);
+    box-shadow:var(--shadow);
+  }
+  .bb-btn.vspd{color:var(--val); border-color:var(--val);}
+
+  /* ---------- home ---------- */
+  .home-hero{padding:34px 18px 10px;}
+  .home-hero .brand{
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase;
+    font-size:34px; font-weight:700; letter-spacing:.08em; margin:0;
+  }
+  .home-hero .brand .tick{color:var(--grn);}
+  .home-hero p{margin:4px 0 0; color:var(--muted); font-size:14px;}
+  .cl-card{
+    display:block; width:100%; text-align:left;
+    background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    box-shadow:var(--shadow); margin:14px 14px 0; width:auto;
+    padding:18px; position:relative;
+  }
+  .cl-card h3{margin:0; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:24px; font-weight:700;}
+  .cl-card .clsub{color:var(--muted); font-size:13px; margin-top:2px;}
+  .cl-card .clmeta{display:flex; gap:14px; margin-top:12px; align-items:center;}
+  .cl-card .clmeta .m{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--faint);}
+  .cl-card .pbar{flex:1; height:5px; border-radius:3px; background:var(--surface2); overflow:hidden;}
+  .cl-card .pbar i{display:block; height:100%; background:var(--grn); border-radius:3px;}
+  .cl-actions{display:flex; gap:14px; margin:8px 22px 0;}
+  .cl-actions button{font-size:12.5px; color:var(--muted); text-decoration:underline; text-underline-offset:3px;}
+  .cl-actions button.danger{color:#B3403A;}
+  .newbtn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    margin:22px 14px 0; width:auto; padding:16px;
+    border:2px dashed var(--line2); border-radius:16px;
+    color:var(--muted); font-weight:600; font-size:15px;
+  }
+  .homefoot{margin:30px 18px 0; font-size:11.5px; color:var(--faint); line-height:1.5;}
+
+  /* ---------- V-speeds sheet ---------- */
+  .scrim{position:fixed; inset:0; background:rgba(8,10,9,.45); z-index:50;}
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; z-index:51;
+    background:var(--surface); border-radius:20px 20px 0 0;
+    box-shadow:var(--sheet-shadow);
+    max-height:82vh; overflow-y:auto;
+    padding:8px 18px calc(20px + env(safe-area-inset-bottom));
+    max-width:640px; margin:0 auto;
+  }
+  .sheet .grab{width:42px;height:4px;border-radius:2px;background:var(--line2);margin:6px auto 12px;}
+  .sheet h3{
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.07em;
+    font-size:20px; margin:14px 0 6px; color:var(--val);
+  }
+  .vtable{width:100%; border-collapse:collapse;}
+  .vtable td{padding:8px 0; border-bottom:1px solid var(--line); font-size:14.5px; vertical-align:baseline;}
+  .vtable td.vl b{font-family:'IBM Plex Mono',monospace; font-weight:600; margin-right:8px;}
+  .vtable td.vk{text-align:right; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--val); white-space:nowrap;}
+  .vtable td.vk small{color:var(--faint); font-weight:400;}
+  .sheet .notes p{font-size:13px; color:var(--muted); margin:6px 0; padding-left:14px; position:relative;}
+  .sheet .notes p::before{content:'▸'; position:absolute; left:0; color:var(--amb);}
+
+  /* ---------- editor ---------- */
+  .ed-section{margin:18px 14px 0;}
+  .ed-section label{display:block; font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;}
+  .ed-section input[type=text]{width:100%;}
+  .ed-phase{background:var(--surface); border:1px solid var(--line); border-radius:14px; margin:14px 14px 0; overflow:hidden;}
+  .ed-phead{display:flex; align-items:center; gap:8px; padding:12px 12px;}
+  .ed-phead input{flex:1; min-width:0; font-weight:700; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:18px;}
+  .ed-item{display:flex; align-items:center; gap:6px; padding:7px 12px; border-top:1px solid var(--line);}
+  .ed-item input{flex:1; min-width:0; padding:8px 10px; font-size:14px;}
+  .ed-item input.chl{flex:1.3; font-weight:600;}
+  .ed-item input.rsp{color:var(--val); font-family:'IBM Plex Mono',monospace;}
+  .ed-item.k-section input.chl{color:var(--amb); text-transform:uppercase; letter-spacing:.04em;}
+  .ed-item.k-note input.chl{font-style:italic; font-weight:400; color:var(--muted);}
+  .mini{
+    width:34px; height:34px; flex:0 0 auto; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); color:var(--muted); font-size:14px; background:var(--surface2);
+  }
+  .mini.del{color:#B3403A;}
+  .ed-add{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); flex-wrap:wrap;}
+  .ed-add button{font-size:13px; font-weight:600; color:var(--val); padding:8px 12px; border:1px dashed var(--line2); border-radius:8px;}
+  .ed-bigadd{display:block; margin:16px 14px 0; width:auto; padding:14px; text-align:center; border:2px dashed var(--line2); border-radius:14px; color:var(--muted); font-weight:600;}
+  .ed-save{
+    background:var(--grn); color:#fff; border-radius:12px; padding:12px 26px;
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.07em;
+    font-weight:700; font-size:17px;
+  }
+  .ed-vrow{display:flex; gap:6px; padding:6px 0; align-items:center;}
+  .ed-vrow input{flex:1; padding:8px 10px; font-size:14px;}
+  .ed-vrow input.num{flex:0 0 76px; font-family:'IBM Plex Mono',monospace; text-align:right;}
+  .io-box{width:100%; height:150px; font-family:'IBM Plex Mono',monospace; font-size:12px;}
+
+  .armed{background:var(--red) !important; color:#fff !important; border-color:var(--red) !important;}
+  .toast{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:calc(84px + env(safe-area-inset-bottom)); z-index:60;
+    background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:10px;
+    font-size:14px; font-weight:600; box-shadow:var(--shadow);
+    animation:toastin .2s ease-out;
+  }
+  @keyframes toastin{from{opacity:0; transform:translateX(-50%) translateY(8px);}to{opacity:1; transform:translateX(-50%) translateY(0);}}
+  @media(prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important;} }
+</style>
+
+<div id="app"></div>
+
+<script>
+'use strict';
+/* ================= data ================= */
+const LSK='kb_lists_v1';
+const seneca={
+  id:'seneca-v',
+  name:'Seneca V — Normal',
+  sub:'Piper PA-34-220T · from CheckMate card',
+  phases:[
+    {name:'Initial', items:[
+      {c:'Weather & Den. Alt.',r:''},{c:'Weight & Balance',r:''},{c:'Performance Req.',r:''},
+      {c:'Flight Plan',r:'FILE'},{c:'Papers',r:'A.R.O.W'},{c:'All Switches',r:'OFF'},
+      {c:'Mixtures',r:'FULL LEAN'},{c:'Crossfeeds',r:'DRAIN'},{c:'Gear Lever',r:'DOWN'},
+      {c:'Master',r:'ON'},{c:'Gear Lights',r:'3 GREEN'},{c:'Annunciator Lights',r:''},
+      {c:'Flaps',r:'EXT / CK / RETRACT'},{c:'Pitot Heat / Stall',r:'TEST'},
+      {c:'Lights',r:'INT. / EXT.'},{c:'Fuel Gauges',r:'TRUE'},{c:'Master',r:'OFF'}
+    ]},
+    {name:'Exterior', items:[
+      {k:'note',c:'After thorough geographical check'},
+      {c:'Fuel Quantity',r:''},{c:'Fuel Quality',r:''},{c:'Caps / Drains / Vents',r:''},
+      {c:'Crossfeed Drain',r:'CLOSED'},{c:'Engines / Oil / Belt',r:''},{c:'Props / Air Intakes',r:''},
+      {c:'Exhaust Systems',r:''},{c:'Surfaces & Controls',r:''},{c:'Pitot & Static Ports',r:''},
+      {c:'Deice Equipment',r:''},{c:'Gear / Tires / Brakes',r:''},{c:'Antennas / Static Wicks',r:''},
+      {c:'Baggage Doors',r:''},{c:'Ties / Chocks / Towbar',r:''},{c:'Final Walk Around',r:''}
+    ]},
+    {name:'Interior', items:[
+      {c:'Passenger Brief',r:''},{c:'Hobbs / Tach Time',r:''},{c:'Circuit Breakers',r:''},
+      {c:'Oxygen',r:''},{c:'ELT',r:'ARMED'},{c:'Alternate Static',r:''},
+      {c:'Pitot / Static',r:'DRAIN / CLOSE'}
+    ]},
+    {name:'Start', items:[
+      {c:'Seat Track / Back',r:'LOCK'},{c:'Avionics',r:'OFF'},{c:'AP',r:'OFF'},
+      {c:'Prop Sync',r:'OFF'},{c:'Alternate Air',r:'OFF'},{c:'Fuel Selectors',r:'ON'},
+      {c:'Cowl Flaps',r:'OPEN'},
+      {c:'Brakes',r:'HOLD WITH FEET',n:'Use feet — not the parking brake'},
+      {k:'section',c:'#1 Engine Start'},
+      {c:'Prop',r:'HIGH RPM'},
+      {c:'Prop',r:'CLEAR'},
+      {c:'Throttle',r:'FULL'},
+      {c:'Master',r:'ON'},
+      {c:'Fuel Pump',r:'ON'},
+      {c:'Mags',r:'ON'},
+      {c:'Mixture',r:'HOT: LEAN · COLD: FULL RICH',n:'Hot start: leave lean, advance during crank · Cold: full rich'},
+      {c:'Throttle',r:'REDUCE TO 1"'},
+      {c:'Starter',r:'ENGAGE'},
+      {c:'Mixture',r:'LEAN FOR TAXI'},
+      {c:'Throttle',r:'1000 RPM'},
+      {c:'Oil Pressure',r:''},
+      {c:'Alternators',r:'ON'},
+      {c:'Beacon',r:'ON'},
+      {c:'Fuel Pump',r:'OFF'},
+      {k:'section',c:'#2 Repeat Engine Start'},
+      {c:'Lights',r:'AS REQ.'},{c:'XFeed',r:'TEST / FUEL ON'}
+    ]},
+    {name:'Pre-Taxi / Taxi', items:[
+      {c:'Seat Belts / Harness',r:''},{c:'Heat / Vent / Defrost',r:''},{c:'Deice',r:'ELECTRIC TEST'},
+      {c:'Avionics',r:'ON'},{c:'ATIS / AWOS',r:''},{c:'Altimeter',r:''},
+      {c:'XPDR',r:'ALT + SQWK'},{c:'ADS-B',r:'ON'},{c:'Radio',r:'TEST'},
+      {c:'Taxi Light',r:'AS REQ.'},{c:'Brakes',r:'TEST'},{c:'Attitude Indic.',r:'TEST'},
+      {c:'Turn Coord.',r:'TEST'},{c:'HSI To Compass',r:'TEST'}
+    ]},
+    {name:'Run-Up', items:[
+      {c:'Brakes',r:''},{c:'Elec. Trim / Autopilot',r:''},{c:'Trim',r:'TAKEOFF'},
+      {c:'Flight Controls',r:''},{c:'Instruments',r:''},
+      {c:'1500 RPM',r:''},{c:'Mixture',r:'BEST POWER'},{c:'Feather',r:'TEST'},
+      {c:'2300 RPM',r:''},{c:'Props',r:'CYCLE / GOV.'},{c:'Alt. Air',r:'TEST / OFF'},
+      {c:'2000 RPM',r:''},{c:'Mags',r:'TEST R-L-BOTH'},{c:'Gyro Vacuum',r:''},
+      {c:'Amps / Volts',r:''},{c:'Alternators',r:'LT / RT'},{c:'Annunciator Lights',r:''},
+      {c:'Oil Pressure',r:''},{c:'Oil Temperature',r:''},{c:'Idle',r:'CHECK CLOSED'},
+      {c:'Friction Lock',r:''}
+    ]},
+    {name:'Pre-Takeoff', items:[
+      {c:'Flaps',r:'0° – 25°'},{c:'Props',r:'HIGH RPM'},{c:'Mixture',r:'FULL RICH'},
+      {c:'Fuel Pumps',r:'ON'},{c:'XPDR',r:'ALT + SQWK'},{c:'Heading Bug',r:''},
+      {c:'Doors / Windows',r:''},{c:'Pitot Heat / Deice',r:''},
+      {c:'Landing Light',r:'ON'},{c:'Strobes',r:'ON'},{c:'Time',r:'NOTE'},
+      {c:'Brakes',r:'RELEASE'},{c:'Abort Plan',r:'READY!'}
+    ]},
+    {name:'Takeoff', items:[
+      {c:'Power',r:'2600 RPM / 38" MP'},{c:'Oil Pressure',r:''},
+      {c:'Rotate',r:'81 (93)',n:'Adjust speed as needed for conditions'},
+      {c:'Vy',r:'88 (101)'},{c:'Gear',r:'UP'},{c:'Flaps',r:'UP'}
+    ]},
+    {name:'Climb', items:[
+      {c:'Climb Speed',r:'110 (127)'},{c:'Throttles',r:'32" MP'},{c:'Props',r:'2500 RPM'},
+      {c:'Mixture',r:'FULL RICH'},{c:'Fuel Pumps',r:'OFF'},{c:'Prop Sync',r:'ON'},
+      {c:'Yaw Damper',r:'ON'},{c:'Cowl Flaps',r:'AS REQ.'},{c:'Instruments',r:''},
+      {c:'Taxi / Land Light',r:'OFF'},{c:'Flight Plan',r:'OPEN'}
+    ]},
+    {name:'Cruise', items:[
+      {c:'Throttles',r:''},{c:'Props',r:''},{c:'Mixture',r:''},
+      {c:'Fuel Pumps',r:'OFF',n:'On above 10,000 ft'},
+      {c:'Cowl Flaps',r:'OPEN'},{c:'Instruments',r:''},{c:'Oxygen',r:''},
+      {c:'Fuel',r:'PROPER TANKS',n:'Fuel pump on while switching, then off after 10 seconds'}
+    ]},
+    {name:'Descent', items:[
+      {c:'Power',r:'AS REQ.'},{c:'Mixture',r:'CRUISE'},{c:'Fuel Selectors',r:'ON'},
+      {c:'Cowl Flaps',r:'CLOSE'},{c:'Defroster / Deice',r:''},{c:'ATIS / AWOS',r:''},
+      {c:'Altimeter',r:''},{c:'Instruments',r:''}
+    ]},
+    {name:'Pre-Landing', items:[
+      {c:'Brakes',r:'PEDAL TEST'},{c:'Landing Light',r:'ON'},{c:'Autopilot',r:'OFF'},
+      {c:'Yaw Damper',r:'OFF'},{c:'Prop Sync',r:'OFF'},
+      {k:'section',c:'GUMPFS'},
+      {c:'Gas',r:'ON / PUMPS ON'},{c:'Undercarriage',r:'DOWN'},{c:'Mixture',r:'FULL RICH'},
+      {c:'Props',r:'HIGH RPM'},{c:'Flaps',r:'AS REQ.'},{c:'Seatbelts',r:'& HARNESS'}
+    ]},
+    {name:'Landing', items:[
+      {c:'Gear',r:'DOWN · 3 GREEN'},{c:'Flaps',r:'40° OR AS REQ.'},{c:'Props',r:'HIGH RPM'},
+      {c:'Short Final',r:'90 (104)',n:'Adjust speed as needed for conditions'}
+    ]},
+    {name:'Go-Around', items:[
+      {c:'Power',r:'FULL'},{c:'Flaps',r:'APPROACH'},{c:'Positive Rate',r:'CLIMB'},
+      {c:'Gear',r:'UP'},{c:'Flaps',r:'RETRACT'},{c:'Cowl Flaps',r:'OPEN'}
+    ]},
+    {name:'After Landing', items:[
+      {c:'Flaps',r:'UP'},{c:'Cowl Flaps',r:'OPEN'},{c:'Fuel Pumps',r:'OFF'},
+      {c:'Strobes',r:'OFF'},{c:'Landing Light',r:'OFF'},{c:'Taxi Light',r:'AS REQ.'},
+      {c:'Deice Equip.',r:'OFF'},{c:'Pitot Heat',r:'OFF'},{c:'Trim',r:'TAKEOFF'},
+      {c:'XPDR',r:'ALT + SQWK'}
+    ]},
+    {name:'Securing', items:[
+      {c:'ELT',r:'VERIFY SILENT'},{c:'Heater',r:'2 MIN / OFF'},{c:'Avionics',r:'OFF'},
+      {c:'Mixture',r:'FULL LEAN'},{c:'Mags',r:'OFF'},
+      {c:'Master / Altntrs',r:'OFF'},{c:'Lights',r:'OFF'},{c:'Cowl Flaps',r:'CLOSE'},
+      {c:'Hobbs / Tach Time',r:''},{c:'Secure Yoke / Brakes',r:''},{c:'Chocks / Tie Downs',r:''},
+      {c:'Pitot Cover',r:''},{c:'Baggage Doors',r:''},{c:'Cabin Doors',r:''},
+      {c:'Flight Plan',r:'CLOSE'}
+    ]}
+  ],
+  vgroups:[
+    {t:'Departure',v:[
+      ['Vr','Rotation','81','93'],['Vx','Best Angle Climb','83','95'],['Vxse','Best Angle 1 Eng.','83','95'],
+      ['Vy','Best Rate Climb','88','101'],['Vyse','Best Rate 1 Eng.','88','101']
+    ]},
+    {t:'Limits & Stall',v:[
+      ['Vs0','Stall With Flaps','61','70'],['Vs','Stall w/o Flaps','67','77'],
+      ['Vmca','Min. Ctrl. 1 Eng.','66','76'],['Vsse','1 Eng. Intentional','85','98'],
+      ['Va','Max Abrupt (3500 lbs)','119','137'],['Va','Max Abrupt (Full Gross)','139','160'],
+      ['Vno','Max Structural Cruise','164','189'],['Vne','Never Exceed','204','235'],
+      ['X-Wind','Max Demo’d','17','20']
+    ]},
+    {t:'Gear & Flaps',v:[
+      ['Vle / Vlo','Gear','128','147'],['Vlr','Max Gear Retract','107','123'],
+      ['Vfe','10° Flaps','140','161'],['Vfe','25° Flaps','120','138'],['Vfe','Full Flaps','113','130']
+    ]},
+    {t:'Arrival',v:[
+      ['','Approach (flaps 10–25)','110','127'],['','Short Final (flaps 40)','90','104']
+    ]}
+  ],
+  notes:[
+    'Cruise TAS -15,000 ft: Economy 174 (200) · Normal 184 (212) · Maximum 192 (221)',
+    'Power: 27.0" Hg – 2300 RPM – 22.0 GPH · 29.0" – 2400 – 24.0 · 30.0" – 2500 – 28.0',
+    'Arrival: 19" MP initially, Props – High RPM',
+    'Short field / obstacle (reduced safety margins): Flaps 25° – 76 KIAS (87)',
+    'Avoid continuous operation between 1900 & 2100 RPM above 32" MP',
+    'Hot start: leave mixture lean, advance during crank · Cold start: full rich',
+    'Speeds shown as KIAS (MPH). Adjust starred speeds for conditions. Verify all values against your POH.'
+  ]
+};
+
+const senecaEmerg={
+  id:'seneca-v-emerg',
+  name:'Seneca V — Emergency',
+  sub:'Piper PA-34-220T · verify against POH Section 3',
+  emerg:true,
+  phases:[
+    {name:'Power Loss on Takeoff', items:[
+      {c:'Throttles',r:'CLOSE BOTH IMMEDIATELY'},
+      {c:'Brakes',r:'AS REQUIRED',n:'Stop straight ahead'},
+      {k:'section',c:'If Insufficient Runway Remains'},
+      {c:'Fuel Selectors',r:'OFF'},
+      {c:'Master & Mags',r:'OFF'},
+      {c:'Door',r:'UNLATCH'},
+      {c:'Body',r:'PROTECT'}
+    ]},
+    {name:'One Engine After Takeoff', items:[
+      {k:'note',c:'Airborne, above 85 KIAS · also one-engine go-around — avoid if possible'},
+      {c:'Directional Control',r:'MAINTAIN',n:'Quality landing area ahead?'},
+      {c:'Gear / Flaps',r:'UP'},
+      {c:'Inoperative Engine',r:'IDENTIFY'},
+      {c:'Verify',r:'CLOSE THROTTLE',n:'On inoperative engine'},
+      {c:'Prop',r:'FEATHER',n:'Inoperative engine · above 800 RPM'},
+      {c:'Mixture',r:'IDLE CUTOFF'},
+      {c:'Accelerate',r:'88 (101)'},
+      {c:'Bank 2–3° · 1/2 Ball',r:'TO OPERATIVE ENGINE'}
+    ]},
+    {name:'One Engine In Flight', items:[
+      {c:'Control Airplane',r:'85+ (98)',n:'Fly the airplane first — maintain safe airspeed'},
+      {c:'Mixtures',r:'FORWARD'},
+      {c:'Props',r:'SLOWLY FORWARD'},
+      {c:'Throttles',r:'SLOWLY FORWARD'},
+      {c:'Gear',r:'UP'},
+      {c:'Flaps',r:'UP'},
+      {c:'Inoperative Engine',r:'IDENTIFY & VERIFY',n:'Dead foot = dead engine · verify with that throttle'},
+      {k:'section',c:'Restart Attempt — Dead Engine'},
+      {k:'note',c:'All steps below on the verified dead engine'},
+      {c:'Mixture',r:'RICH'},
+      {c:'Prop',r:'FORWARD'},
+      {c:'Throttle',r:'SLOWLY FORWARD'},
+      {c:'Fuel Selector',r:'ON'},
+      {c:'Fuel Pump',r:'ON'},
+      {c:'Throttle',r:'AS NEEDED'},
+      {c:'Mags',r:'ON'},
+      {c:'Starter',r:'CRANK'},
+      {k:'section',c:'If Engine Restarts'},
+      {c:'Throttle / Props / Mixture',r:'SET FOR CRUISE'},
+      {k:'section',c:'If No Restart — Secure Dead Engine'},
+      {c:'Throttle',r:'RETARD'},
+      {c:'Prop',r:'FULL FEATHER'},
+      {c:'Mixture',r:'IDLE CUTOFF'},
+      {c:'Fuel Pump',r:'OFF'},
+      {c:'Fuel Selector',r:'OFF'},
+      {c:'Mags',r:'OFF'},
+      {c:'Alternator',r:'OFF'},
+      {c:'Cowl Flap',r:'CLOSED'},
+      {k:'section',c:'Good Engine'},
+      {c:'Cowl Flap',r:'OPEN'},
+      {c:'Crossfeed',r:'AS REQUIRED'}
+    ]},
+    {name:'Unfeather & Restart', items:[
+      {k:'section',c:'Dead Engine'},
+      {c:'Fuel Selector',r:'ON'},
+      {c:'Fuel Pump',r:'ON'},
+      {c:'Throttle',r:'HALF'},
+      {c:'Mixture',r:'FULL RICH'},
+      {c:'Prop',r:'3/4 FORWARD'},
+      {c:'Mags',r:'ON'},
+      {c:'Starter',r:'CRANK UNTIL PROP WINDMILLS'},
+      {c:'Throttle',r:'ADJUST UNTIL ENGINE STARTS'},
+      {k:'section',c:'After Start'},
+      {c:'Manifold Pressure',r:'12" UNTIL WARM'},
+      {c:'Fuel Pump',r:'OFF'},
+      {c:'Alternator',r:'ON'},
+      {c:'When Warm',r:'SET CRUISE'}
+    ]},
+    {name:'One Engine Landing', items:[
+      {c:'Inoperative Engine',r:'SECURE',n:'Maintain safe airspeed'},
+      {c:'Gear',r:'DOWN WHEN FIELD ASSURED'},
+      {c:'Flaps',r:'AS REQUIRED'},
+      {c:'Final Approach',r:'90 (104)'},
+      {c:'Full Flaps',r:'WHEN COMMITTED TO LAND'}
+    ]},
+    {name:'Both Engines Out', items:[
+      {c:'Airspeed',r:'MAINTAIN SAFE',n:'Best glide not published by manufacturer'},
+      {c:'Props',r:'FEATHER'},
+      {c:'Mixture',r:'FULL LEAN / IDLE CUTOFF'},
+      {c:'Fuel Selectors',r:'OFF'},
+      {c:'Squawk',r:'7700'},
+      {c:'Declare Emergency',r:'',n:'TWR, APP, Unicom, 121.5'},
+      {c:'Seatbelts / Harness',r:''},
+      {c:'Flaps',r:'AS NEEDED',n:'Full flaps when field assured'},
+      {c:'Gear',r:'DOWN',n:'Up if very rough or soft terrain'},
+      {c:'Master & Mags',r:'OFF'},
+      {c:'Door',r:'UNLATCH'},
+      {c:'Body',r:'PROTECT'}
+    ]},
+    {name:'Electrical Fire', items:[
+      {c:'All Electrical + Master',r:'OFF',n:'Pull CBs · Mags — On'},
+      {c:'Cabin Heat & Air',r:'OFF',n:'Vents — Open'},
+      {k:'section',c:'If Fire Out'},
+      {c:'Master',r:'ON ONLY IF CRITICAL'},
+      {c:'Essential Devices',r:'ONE AT A TIME'},
+      {c:'Circuit Breakers',r:'RESET ONLY IF CRITICAL'}
+    ]},
+    {name:'Engine Fire In Flight', items:[
+      {c:'Fuel Selector',r:'OFF',n:'Affected engine'},
+      {c:'Throttle',r:'CLOSE'},
+      {c:'Prop',r:'FEATHER'},
+      {c:'Mixture',r:'FULL LEAN / IDLE CUTOFF'},
+      {c:'Heater / Defroster',r:'OFF',n:'Cowl flap — Open'},
+      {c:'Airspeed',r:'INCREASE TO EXTINGUISH'},
+      {c:'Land',r:'ASAP'}
+    ]},
+    {name:'Engine Fire on Start', items:[
+      {c:'Mixture',r:'FULL LEAN / IDLE CUTOFF'},
+      {c:'Starter',r:'CONTINUE CRANKING'},
+      {c:'Throttle',r:'FULL OPEN'},
+      {c:'Fuel Selector',r:'OFF'},
+      {c:'Master',r:'OFF'},
+      {c:'Other Engine',r:'SHUTDOWN'},
+      {c:'Evacuate',r:'FIRE EXTINGUISHER'}
+    ]},
+    {name:'Icing', items:[
+      {c:'Pitot Heat / Deice Equip.',r:'ON'},
+      {c:'Alt. Induction Air / Static',r:'AS NEEDED'},
+      {c:'Cabin Heat & Defrost',r:'MAXIMUM'},
+      {c:'180° Turn',r:'STRONGLY CONSIDER'},
+      {c:'Altitude',r:'HIGHER OR LOWER'},
+      {c:'Engine & Prop Speed',r:'INCREASE'},
+      {c:'Full Flaps',r:'NOT RECOMMENDED',n:'For landing'},
+      {c:'Land',r:'FASTER AS NEEDED'}
+    ]},
+    {name:'Manual Gear Extension', items:[
+      {c:'Airspeed',r:'BELOW 85 (98)'},
+      {c:'Guard Clip',r:'DOWN, CLEAR OF KNOB'},
+      {c:'Landing Gear Lever',r:'LOWER'},
+      {c:'Emerg. Gear Extension Knob',r:'PULL'},
+      {c:'If Electrical System OK',r:'VERIFY GEAR LIGHTS'}
+    ]},
+    {name:'Electrical Failure', items:[
+      {k:'note',c:'Alt light illuminated — observe ammeters to determine inoperative alternator'},
+      {c:'Inop Alternator',r:'OFF, THEN ON',n:'To reset'},
+      {c:'If Remains Off',r:'REDUCE LOAD TO 85A'},
+      {k:'section',c:'If Both Alternators Failed'},
+      {c:'Electrical Load',r:'REDUCE TO MINIMUM'},
+      {c:'Both Alt Switches',r:'OFF · CHECK CBS'},
+      {c:'Alternators',r:'ON ONE AT A TIME',n:'While observing output'},
+      {c:'If Only One Restores',r:'LEAVE ON · FAULTY OFF',n:'Loads below 85A · monitor output'},
+      {c:'If Neither Restores',r:'BOTH ALT OFF',n:'Battery only — reduce load, land ASAP'}
+    ]},
+    {name:'Radio Out', items:[
+      {c:'CBs & Volume',r:'CHECK'},
+      {c:'Alt. Switch',r:'RECYCLE'},
+      {c:'If IFR & Still Out',r:'XPDR 7600',n:'Suggested for VFR in B, C, D, E airspace'}
+    ]}
+  ],
+  vgroups:[
+    {t:'Single Engine',v:[
+      ['Vmca','Min. Ctrl. 1 Eng.','66','76'],
+      ['Vsse','1 Eng. Intentional','85','98'],
+      ['Vxse','Best Angle 1 Eng.','83','95'],
+      ['Vyse','Best Rate 1 Eng.','88','101']
+    ]}
+  ],
+  notes:[
+    'Max T.O. 4750 · Max Ldg 4513 · Zero Fuel 4479 · Max Bag 185 lbs (100 lbs fwd, 85 lbs aft)',
+    'Fuel 100LL (blue) / 100 (green) · 122 gal usable · Oil 8 qts/engine (min 3, recommend 6)',
+    'Electrical 24–28 V / 85 A alternators · Tires: nose 40 PSI, mains 55 PSI',
+    'One Engine In Flight and Unfeather & Restart are personal procedures; remainder per CheckMate card. Verify all against POH Section 3.'
+  ]
+};
+
+/* ================= storage ================= */
+function loadLists(){
+  try{
+    const raw=localStorage.getItem(LSK);
+    if(raw){ const a=JSON.parse(raw); if(Array.isArray(a)&&a.length) return a; }
+  }catch(e){}
+  return [JSON.parse(JSON.stringify(seneca)),JSON.parse(JSON.stringify(senecaEmerg))];
+}
+let lists=loadLists();
+function saveLists(){ try{localStorage.setItem(LSK,JSON.stringify(lists));}catch(e){} }
+if(!localStorage.getItem(LSK)) saveLists();
+
+function chkKey(id){return 'kb_state_'+id;}
+function loadChk(id){ try{return JSON.parse(localStorage.getItem(chkKey(id))||'{}');}catch(e){return{};} }
+function saveChk(id,o){ try{localStorage.setItem(chkKey(id),JSON.stringify(o));}catch(e){} }
+
+/* seed migration: replace/add built-in lists when their bundled version advances */
+const SEED_V=7;
+(function(){
+  try{
+    const v=+(localStorage.getItem('kb_seed_v')||1);
+    if(v<SEED_V){
+      [seneca,senecaEmerg].forEach(sd=>{
+        const cp=JSON.parse(JSON.stringify(sd));
+        const ix=lists.findIndex(l=>l.id===sd.id);
+        if(ix>=0){ lists[ix]=cp; localStorage.removeItem(chkKey(sd.id)); }
+        else lists.push(cp);
+      });
+      saveLists();
+    }
+    localStorage.setItem('kb_seed_v',SEED_V);
+  }catch(e){}
+})();
+
+/* built-in lists always come back if missing (e.g. accidental delete on an old build) */
+const BUILTIN=new Set([seneca.id,senecaEmerg.id]);
+(function(){
+  let changed=false;
+  [seneca,senecaEmerg].forEach(sd=>{
+    if(!lists.some(l=>l&&l.id===sd.id)){ lists.push(JSON.parse(JSON.stringify(sd))); changed=true; }
+  });
+  if(changed) saveLists();
+})();
+
+/* theme: 'auto' | 'light' | 'dark' */
+let theme=localStorage.getItem('kb_theme')||'auto';
+function applyTheme(){
+  const r=document.documentElement;
+  if(theme==='auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme',theme);
+  try{localStorage.setItem('kb_theme',theme);}catch(e){}
+}
+applyTheme();
+
+/* ================= state ================= */
+let view='home';         // home | run | edit
+let curId=null;
+let phaseIdx=0;
+let sheetOpen=false;
+let editDraft=null;      // deep copy while editing
+let editIsNew=false;
+let ioMode=null;         // 'export' | 'import' | null
+
+const app=document.getElementById('app');
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function cur(){ return lists.find(l=>l.id===curId); }
+function checkables(ph){ return ph.items.filter(it=>!it.k||it.k==='item'); }
+
+function phaseStats(cl,chk){
+  return cl.phases.map((ph,pi)=>{
+    let tot=0,done=0;
+    ph.items.forEach((it,ii)=>{ if(!it.k||it.k==='item'){tot++; if(chk[pi+'.'+ii])done++;} });
+    return {tot,done};
+  });
+}
+
+/* ================= render: home ================= */
+function renderHome(){
+  app.className='';
+  let h=`<div class="home-hero">
+    <h1 class="brand">Kneeboard<span class="tick"> ✓</span></h1>
+    <p>Interactive aircraft checklists</p>
+  </div>`;
+  lists.forEach(cl=>{
+    const chk=loadChk(cl.id);
+    const st=phaseStats(cl,chk);
+    const tot=st.reduce((a,s)=>a+s.tot,0), done=st.reduce((a,s)=>a+s.done,0);
+    const pct=tot?Math.round(done/tot*100):0;
+    h+=`<button class="cl-card${cl.emerg?' emg':''}" data-open="${esc(cl.id)}">
+      <h3>${esc(cl.name)}</h3>
+      <div class="clsub">${esc(cl.sub||'')}</div>
+      <div class="clmeta">
+        <span class="m">${cl.phases.length} PHASES · ${tot} ITEMS</span>
+        <span class="pbar"><i style="width:${pct}%"></i></span>
+        <span class="m">${pct}%</span>
+      </div>
+    </button>
+    <div class="cl-actions">
+      <button data-edit="${esc(cl.id)}">Edit</button>
+      <button data-dup="${esc(cl.id)}">Duplicate</button>
+      <button data-exp="${esc(cl.id)}">Export</button>
+      ${!BUILTIN.has(cl.id)&&lists.length>1?`<button class="danger" data-del="${esc(cl.id)}">Delete</button>`:''}
+    </div>`;
+  });
+  h+=`<button class="newbtn" id="newcl">＋ &nbsp;New checklist</button>
+  <button class="newbtn" id="importcl" style="margin-top:10px">⤓ &nbsp;Import from JSON</button>`;
+  if(ioMode){
+    h+=`<div class="ed-section">
+      <label>${ioMode==='export'?'Copy this JSON to back up / move to another device':'Paste checklist JSON below'}</label>
+      <textarea class="io-box" id="iobox" ${ioMode==='export'?'readonly':''}>${ioMode==='export'?esc(ioText):''}</textarea>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        ${ioMode==='import'?'<button class="ed-save" id="iodo">Import</button>':'<button class="ed-save" id="iocopy">Copy</button>'}
+        <button class="bb-btn" id="ioclose">Close</button>
+      </div>
+    </div>`;
+  }
+  h+=`<p class="homefoot">Personal reference & training aid — not a substitute for the aircraft POH/AFM. Verify every value against your POH. Checklists and progress are stored on this device; use Export to move them to another device.</p>`;
+  app.innerHTML=h;
+
+  app.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{ curId=b.dataset.open; phaseIdx=firstOpenPhase(); view='run'; render(); window.scrollTo(0,0); });
+  app.querySelectorAll('[data-edit]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openEditor(b.dataset.edit); });
+  app.querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{
+    const src=lists.find(l=>l.id===b.dataset.dup);
+    const cp=JSON.parse(JSON.stringify(src));
+    cp.id='cl_'+Math.random().toString(36).slice(2,9);
+    cp.name=src.name+' (copy)';
+    lists.push(cp); saveLists(); render();
+  });
+  app.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>armConfirm(b,()=>{
+    lists=lists.filter(x=>x.id!==b.dataset.del);
+    try{localStorage.removeItem(chkKey(b.dataset.del));}catch(e){}
+    saveLists(); render(); toast('Checklist deleted');
+  },'Confirm delete'));
+  app.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>{
+    const l=lists.find(x=>x.id===b.dataset.exp);
+    ioMode='export'; ioText=JSON.stringify(l,null,1); render();
+    setTimeout(()=>{const t=document.getElementById('iobox'); if(t){t.scrollIntoView({block:'center'}); t.select();}},50);
+  });
+  const nb=document.getElementById('newcl');
+  if(nb) nb.onclick=()=>{ openEditor(null); };
+  const ib=document.getElementById('importcl');
+  if(ib) ib.onclick=()=>{ ioMode='import'; render(); setTimeout(()=>{const t=document.getElementById('iobox'); if(t)t.scrollIntoView({block:'center'});},50); };
+  const ic=document.getElementById('ioclose'); if(ic) ic.onclick=()=>{ ioMode=null; render(); };
+  const cp=document.getElementById('iocopy'); if(cp) cp.onclick=()=>{
+    const t=document.getElementById('iobox'); t.select();
+    try{ navigator.clipboard.writeText(t.value).then(()=>toast('Copied')); }catch(e){ document.execCommand('copy'); toast('Copied'); }
+  };
+  const io=document.getElementById('iodo'); if(io) io.onclick=()=>{
+    try{
+      const o=JSON.parse(document.getElementById('iobox').value);
+      if(!o.name||!Array.isArray(o.phases)) throw 0;
+      o.id='cl_'+Math.random().toString(36).slice(2,9);
+      lists.push(o); saveLists(); ioMode=null; render(); toast('Imported');
+    }catch(e){ toast('That doesn’t look like valid checklist JSON'); }
+  };
+}
+let ioText='';
+
+function firstOpenPhase(){
+  const cl=cur(); const chk=loadChk(cl.id); const st=phaseStats(cl,chk);
+  for(let i=0;i<st.length;i++){ if(st[i].done<st[i].tot) return i; }
+  return 0;
+}
+
+/* ================= render: run ================= */
+function renderRun(){
+  const cl=cur(); if(!cl){view='home';app.className='';return renderHome();}
+  app.className='run-mode'+(cl.emerg?' emerg':'');
+  const chk=loadChk(cl.id);
+  const st=phaseStats(cl,chk);
+  if(phaseIdx>=cl.phases.length) phaseIdx=0;
+  const ph=cl.phases[phaseIdx];
+  const tot=st.reduce((a,s)=>a+s.tot,0), done=st.reduce((a,s)=>a+s.done,0);
+  const pct=tot?Math.round(done/tot*100):0;
+
+  // find current (first unchecked) in active phase
+  let currentIdx=-1;
+  ph.items.some((it,ii)=>{ if((!it.k||it.k==='item')&&!chk[phaseIdx+'.'+ii]){currentIdx=ii;return true;} return false; });
+
+  const chipHtml=(vertical)=>cl.phases.map((p,pi)=>{
+    const s=st[pi];
+    const cls=['chip']; if(pi===phaseIdx)cls.push('active');
+    if(s.tot&&s.done===s.tot)cls.push('done'); else if(s.done>0)cls.push('part');
+    return `<button class="${cls.join(' ')}" data-ph="${pi}"><span class="dot"></span>${esc(p.name)}${vertical?`<span class="cnt">${s.done}/${s.tot}</span>`:''}</button>`;
+  }).join('');
+
+  let rows='';
+  ph.items.forEach((it,ii)=>{
+    if(it.k==='section'){ rows+=`<div class="srow">${esc(it.c)}</div>`; return; }
+    if(it.k==='note'){ rows+=`<div class="nrow">${esc(it.c)}</div>`; return; }
+    const key=phaseIdx+'.'+ii, isDone=!!chk[key];
+    const cls=['row']; if(isDone)cls.push('done'); if(ii===currentIdx)cls.push('current');
+    rows+=`<button class="${cls.join(' ')}" data-it="${ii}" aria-pressed="${isDone}">
+      <span class="box">✓</span>
+      <span class="rc"><span style="min-width:0">
+        <span class="ch">${esc(it.c)}</span>
+        ${it.n?`<span class="nt">※ ${esc(it.n)}</span>`:''}
+      </span>
+      ${it.r?`<span class="lead"></span><span class="rv">${esc(it.r)}</span>`:''}
+      </span>
+    </button>`;
+  });
+
+  const s=st[phaseIdx];
+  const phaseDone=s.tot>0&&s.done===s.tot;
+  const allDone=done===tot&&tot>0;
+  let banner='';
+  if(allDone){
+    banner=`<div class="allday"><b>All phases complete</b><span>Nice flight. Reset when you’re ready for the next leg.</span><div style="margin-top:12px"><button class="nextbtn" id="resetall2">Reset Flight</button></div></div>`;
+  }else if(phaseDone){
+    let nxt=-1;
+    for(let i=0;i<st.length;i++){ const j=(phaseIdx+1+i)%st.length; if(st[j].done<st[j].tot){nxt=j;break;} }
+    if(nxt>=0) banner=`<div class="donebanner"><div class="dtxt"><b>${esc(ph.name)} complete</b></div><button class="nextbtn" data-next="${nxt}">Next: ${esc(cl.phases[nxt].name)} →</button></div>`;
+  }
+
+  app.innerHTML=`
+  <div class="topbar">
+    <button class="iconbtn" id="back" aria-label="Back to checklists">‹</button>
+    <div class="tb-title"><h1>${esc(cl.name)}</h1><p class="sub">${esc(cl.sub||'')}</p></div>
+    <div class="pctring">${pct}%</div>
+    <button class="iconbtn" id="themebtn" aria-label="Toggle theme">${theme==='dark'?'☾':theme==='light'?'☀':'◐'}</button>
+  </div>
+  <div class="rail" id="rail">${chipHtml(false)}</div>
+  <div class="runwrap">
+    <nav class="sidebar">${chipHtml(true)}</nav>
+    <div class="phasepane">
+      <div class="phasehead">
+        <h2>${esc(ph.name)}</h2>
+        <span class="count">${s.done}/${s.tot}</span>
+        <button class="resetph" id="resetph">reset phase</button>
+      </div>
+      <div class="card">${rows}</div>
+      ${banner}
+    </div>
+  </div>
+  <div class="bottombar">
+    <button class="bb-btn vspd" id="vbtn">V-Speeds ▲</button>
+    <button class="bb-btn" id="resetall">Reset Flight</button>
+  </div>
+  ${sheetOpen?vsheetHtml(cl):''}`;
+
+  document.getElementById('back').onclick=()=>{view='home';render();window.scrollTo(0,0);};
+  document.getElementById('themebtn').onclick=()=>{
+    theme=theme==='auto'?'dark':theme==='dark'?'light':'auto';
+    applyTheme(); render();
+  };
+  app.querySelectorAll('[data-ph]').forEach(b=>b.onclick=()=>{phaseIdx=+b.dataset.ph; render(); window.scrollTo(0,0);});
+  app.querySelectorAll('[data-it]').forEach(b=>b.onclick=()=>{
+    const key=phaseIdx+'.'+b.dataset.it;
+    if(chk[key]) delete chk[key]; else chk[key]=1;
+    saveChk(cl.id,chk); render();
+  });
+  app.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{phaseIdx=+b.dataset.next; render(); window.scrollTo(0,0);});
+  document.getElementById('resetph').onclick=()=>{
+    ph.items.forEach((it,ii)=>{delete chk[phaseIdx+'.'+ii];});
+    saveChk(cl.id,chk); render();
+  };
+  const doReset=()=>{ saveChk(cl.id,{}); phaseIdx=0; render(); window.scrollTo(0,0); toast('Flight reset'); };
+  const rb=document.getElementById('resetall');
+  rb.onclick=()=>armConfirm(rb,doReset);
+  const ra2=document.getElementById('resetall2'); if(ra2) ra2.onclick=()=>armConfirm(ra2,doReset);
+  const vb=document.getElementById('vbtn'); vb.onclick=()=>{sheetOpen=true;render();};
+  const sc=document.getElementById('scrim'); if(sc) sc.onclick=()=>{sheetOpen=false;render();};
+  const scl=document.getElementById('sheetclose'); if(scl) scl.onclick=()=>{sheetOpen=false;render();};
+
+  // keep active chip visible in the rail
+  const act=app.querySelector('.rail .chip.active');
+  if(act) act.scrollIntoView({inline:'center',block:'nearest'});
+}
+
+function vsheetHtml(cl){
+  if(!cl.vgroups||!cl.vgroups.length) {
+    return `<div class="scrim" id="scrim"></div><div class="sheet"><div class="grab"></div><p style="color:var(--muted);text-align:center;padding:20px 0">No V-speeds saved for this checklist yet — add them in the editor.</p><div style="text-align:center"><button class="bb-btn" id="sheetclose">Close</button></div></div>`;
+  }
+  let h=`<div class="scrim" id="scrim"></div><div class="sheet"><div class="grab"></div>
+  <div style="display:flex;align-items:baseline;justify-content:space-between">
+    <span class="cond" style="font-weight:700;font-size:18px">V-Speeds & Notes</span>
+    <span class="mono" style="font-size:11px;color:var(--faint)">KIAS (MPH)</span>
+  </div>`;
+  cl.vgroups.forEach(g=>{
+    h+=`<h3>${esc(g.t)}</h3><table class="vtable">`;
+    g.v.forEach(v=>{
+      h+=`<tr><td class="vl">${v[0]?`<b>${esc(v[0])}</b>`:''}${esc(v[1])}</td><td class="vk">${esc(v[2])} <small>(${esc(v[3])})</small></td></tr>`;
+    });
+    h+=`</table>`;
+  });
+  if(cl.notes&&cl.notes.length){
+    h+=`<h3>Notes</h3><div class="notes">${cl.notes.map(n=>`<p>${esc(n)}</p>`).join('')}</div>`;
+  }
+  h+=`<div style="text-align:center;margin-top:16px"><button class="bb-btn" id="sheetclose">Close</button></div></div>`;
+  return h;
+}
+
+/* ================= render: editor ================= */
+function openEditor(id){
+  if(id){ editDraft=JSON.parse(JSON.stringify(lists.find(l=>l.id===id))); editIsNew=false; }
+  else{
+    editDraft={id:'cl_'+Math.random().toString(36).slice(2,9),name:'',sub:'',
+      phases:[{name:'Phase 1',items:[{c:'',r:''}]}],vgroups:[],notes:[]};
+    editIsNew=true;
+  }
+  view='edit'; render(); window.scrollTo(0,0);
+}
+
+function renderEdit(){
+  app.className='';
+  const d=editDraft;
+  let h=`<div class="topbar">
+    <button class="iconbtn" id="edcancel" aria-label="Cancel">‹</button>
+    <div class="tb-title"><h1>${editIsNew?'New checklist':'Edit checklist'}</h1></div>
+    <button class="ed-save" id="edsave">Save</button>
+  </div>
+  <div class="ed-section"><label>Checklist name</label>
+    <input type="text" id="edname" value="${esc(d.name)}" placeholder="e.g. Seneca V — Normal"></div>
+  <div class="ed-section"><label>Subtitle (aircraft / tail number)</label>
+    <input type="text" id="edsub" value="${esc(d.sub||'')}" placeholder="e.g. Piper PA-34-220T · N12345"></div>`;
+
+  d.phases.forEach((ph,pi)=>{
+    h+=`<div class="ed-phase" data-pi="${pi}">
+      <div class="ed-phead">
+        <input type="text" value="${esc(ph.name)}" data-pname="${pi}" placeholder="Phase name">
+        <button class="mini" data-pup="${pi}" aria-label="Move phase up">↑</button>
+        <button class="mini" data-pdn="${pi}" aria-label="Move phase down">↓</button>
+        <button class="mini del" data-pdel="${pi}" aria-label="Delete phase">✕</button>
+      </div>`;
+    ph.items.forEach((it,ii)=>{
+      const kind=it.k||'item';
+      h+=`<div class="ed-item k-${kind}">
+        <input type="text" class="chl" value="${esc(it.c)}" data-c="${pi}.${ii}" placeholder="${kind==='item'?'Challenge':kind==='section'?'Section header':'Note text'}">
+        ${kind==='item'?`<input type="text" class="rsp" value="${esc(it.r||'')}" data-r="${pi}.${ii}" placeholder="Response">`:''}
+        <button class="mini" data-iup="${pi}.${ii}" aria-label="Move up">↑</button>
+        <button class="mini" data-idn="${pi}.${ii}" aria-label="Move down">↓</button>
+        <button class="mini del" data-idel="${pi}.${ii}" aria-label="Delete item">✕</button>
+      </div>`;
+      if(kind==='item'){
+        h+=`<div class="ed-item" style="padding-top:0;border-top:none">
+          <input type="text" value="${esc(it.n||'')}" data-n="${pi}.${ii}" placeholder="Caution / note (optional)" style="font-size:12.5px;color:var(--amb)">
+        </div>`;
+      }
+    });
+    h+=`<div class="ed-add">
+      <button data-addi="${pi}">＋ Item</button>
+      <button data-adds="${pi}">＋ Section header</button>
+      <button data-addn="${pi}">＋ Note</button>
+    </div></div>`;
+  });
+  h+=`<button class="ed-bigadd" id="addphase">＋ Add phase</button>
+  <div class="ed-section" style="margin-bottom:30px">
+    <label>Notes shown in the V-speeds sheet (one per line)</label>
+    <textarea class="io-box" id="ednotes" style="height:110px">${esc((d.notes||[]).join('\n'))}</textarea>
+  </div>`;
+  app.innerHTML=h;
+
+  const syncInputs=()=>{
+    d.name=document.getElementById('edname').value;
+    d.sub=document.getElementById('edsub').value;
+    d.notes=document.getElementById('ednotes').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    app.querySelectorAll('[data-pname]').forEach(i=>{d.phases[+i.dataset.pname].name=i.value;});
+    app.querySelectorAll('[data-c]').forEach(i=>{const[p,x]=i.dataset.c.split('.');d.phases[+p].items[+x].c=i.value;});
+    app.querySelectorAll('[data-r]').forEach(i=>{const[p,x]=i.dataset.r.split('.');d.phases[+p].items[+x].r=i.value;});
+    app.querySelectorAll('[data-n]').forEach(i=>{const[p,x]=i.dataset.n.split('.');d.phases[+p].items[+x].n=i.value;});
+  };
+  const rerender=()=>{syncInputs();renderEdit();};
+
+  const cx=document.getElementById('edcancel');
+  cx.onclick=()=>{
+    if(!cx.dataset.armed) toast('Tap back again to discard changes');
+    armConfirm(cx,()=>{ editDraft=null; view='home'; render(); },'✕');
+  };
+  document.getElementById('edsave').onclick=()=>{
+    syncInputs();
+    if(!d.name.trim()){toast('Give the checklist a name');return;}
+    d.phases.forEach(ph=>{ph.items=ph.items.filter(it=>String(it.c||'').trim()!=='');});
+    d.phases=d.phases.filter(ph=>ph.items.length||ph.name.trim());
+    const ix=lists.findIndex(l=>l.id===d.id);
+    if(ix>=0)lists[ix]=d; else lists.push(d);
+    saveLists(); editDraft=null; view='home'; render(); toast('Saved');
+  };
+  document.getElementById('addphase').onclick=()=>{syncInputs();d.phases.push({name:'',items:[{c:'',r:''}]});renderEdit();};
+  app.querySelectorAll('[data-addi]').forEach(b=>b.onclick=()=>{syncInputs();d.phases[+b.dataset.addi].items.push({c:'',r:''});renderEdit();});
+  app.querySelectorAll('[data-adds]').forEach(b=>b.onclick=()=>{syncInputs();d.phases[+b.dataset.adds].items.push({k:'section',c:''});renderEdit();});
+  app.querySelectorAll('[data-addn]').forEach(b=>b.onclick=()=>{syncInputs();d.phases[+b.dataset.addn].items.push({k:'note',c:''});renderEdit();});
+  app.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{
+    if(!b.dataset.armed) toast('Tap ✕ again to delete this phase');
+    armConfirm(b,()=>{syncInputs();d.phases.splice(+b.dataset.pdel,1);renderEdit();},'✕');
+  });
+  app.querySelectorAll('[data-pup]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pup;if(i>0){syncInputs();[d.phases[i-1],d.phases[i]]=[d.phases[i],d.phases[i-1]];renderEdit();}});
+  app.querySelectorAll('[data-pdn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pdn;if(i<d.phases.length-1){syncInputs();[d.phases[i+1],d.phases[i]]=[d.phases[i],d.phases[i+1]];renderEdit();}});
+  app.querySelectorAll('[data-idel]').forEach(b=>b.onclick=()=>{const[p,x]=b.dataset.idel.split('.').map(Number);syncInputs();d.phases[p].items.splice(x,1);renderEdit();});
+  app.querySelectorAll('[data-iup]').forEach(b=>b.onclick=()=>{const[p,x]=b.dataset.iup.split('.').map(Number);if(x>0){syncInputs();const a=d.phases[p].items;[a[x-1],a[x]]=[a[x],a[x-1]];renderEdit();}});
+  app.querySelectorAll('[data-idn]').forEach(b=>b.onclick=()=>{const[p,x]=b.dataset.idn.split('.').map(Number);const a=d.phases[p].items;if(x<a.length-1){syncInputs();[a[x+1],a[x]]=[a[x],a[x+1]];renderEdit();}});
+}
+
+/* ================= misc ================= */
+/* two-tap confirm: first tap arms the button, second tap (within 3.5s) runs fn.
+   Replaces window.confirm(), which sandboxed pages block. */
+function armConfirm(btn,fn,label){
+  if(btn.dataset.armed){ delete btn.dataset.armed; btn.classList.remove('armed'); fn(); return; }
+  btn.dataset.armed='1';
+  btn.dataset.prev=btn.textContent;
+  btn.textContent=label||'Tap again to confirm';
+  btn.classList.add('armed');
+  setTimeout(()=>{
+    if(btn.isConnected&&btn.dataset.armed){
+      delete btn.dataset.armed; btn.textContent=btn.dataset.prev; btn.classList.remove('armed');
+    }
+  },3500);
+}
+
+let toastT=null;
+function toast(msg){
+  const old=document.querySelector('.toast'); if(old)old.remove();
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  clearTimeout(toastT); toastT=setTimeout(()=>t.remove(),1800);
+}
+
+function render(){
+  if(view==='run') renderRun();
+  else if(view==='edit') renderEdit();
+  else renderHome();
+}
+render();
+</script>
