@@ -325,6 +325,27 @@
   }
   @keyframes toastin{from{opacity:0; transform:translateX(-50%) translateY(8px);}to{opacity:1; transform:translateX(-50%) translateY(0);}}
   @media(prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important;} }
+
+  /* ---- edit lock + config additions ---- */
+  .lockrow{display:flex; gap:10px; align-items:center; margin:18px 22px 4px;}
+  .lockbtn{font-size:12.5px; color:var(--muted); border:1px solid var(--line2); border-radius:9px; padding:8px 13px; font-weight:600;}
+  .lockbtn.on{color:var(--val); border-color:var(--val);}
+  .lockhint{font-size:12px; color:var(--faint);}
+  .pinwrap{display:flex; gap:8px; margin:8px 22px 0;}
+  .pinwrap input{flex:1; min-width:0; font-family:'IBM Plex Mono',monospace; letter-spacing:.45em; text-align:center; font-size:18px;}
+  .clsort{display:flex; gap:6px; margin:8px 22px 0;}
+  .ed-more{display:flex; gap:6px; align-items:center; padding:2px 12px 10px; flex-wrap:wrap;}
+  .ed-more select{font-size:13px; padding:7px 8px;}
+  .ed-more button{font-size:12.5px; font-weight:600; color:var(--val); padding:7px 11px; border:1px dashed var(--line2); border-radius:8px;}
+  .ed-more button.del{color:#B3403A;}
+  .ed-more .lbl{font-size:11.5px; color:var(--faint); text-transform:uppercase; letter-spacing:.06em;}
+  .vrow{display:flex; gap:6px; align-items:center; padding:6px 12px; border-top:1px solid var(--line);}
+  .vrow input{min-width:0; padding:7px 8px; font-size:13.5px;}
+  .vrow input.va{flex:.9; font-weight:700;}
+  .vrow input.vd{flex:1.7;}
+  .vrow input.vk,.vrow input.vm{flex:.75; font-family:'IBM Plex Mono',monospace; color:var(--val);}
+  .ed-toggle{display:flex; align-items:center; gap:10px; margin:18px 14px 0; font-size:14px; color:var(--ink);}
+  .ed-toggle input{width:20px; height:20px; accent-color:var(--val); padding:0;}
 </style>
 
 <div id="app"></div>
@@ -333,6 +354,9 @@
 'use strict';
 /* ================= data ================= */
 const LSK='kb_lists_v1';
+/* PIN that unlocks editing. Anyone can read it in this file — it exists to stop
+   accidental edits in the cockpit, not to keep anyone out. Change it here. */
+const EDIT_PIN='7190';
 const seneca={
   id:'seneca-v',
   name:'Seneca V — Normal',
@@ -687,7 +711,11 @@ const SEED_V=7;
       [seneca,senecaEmerg].forEach(sd=>{
         const cp=JSON.parse(JSON.stringify(sd));
         const ix=lists.findIndex(l=>l.id===sd.id);
-        if(ix>=0){ lists[ix]=cp; localStorage.removeItem(chkKey(sd.id)); }
+        /* Only overwrite a bundled list the user has never edited. Once they've
+           edited it, their copy wins and a seed bump leaves it alone. */
+        if(ix>=0){
+          if(!lists[ix].edited){ lists[ix]=cp; localStorage.removeItem(chkKey(sd.id)); }
+        }
         else lists.push(cp);
       });
       saveLists();
@@ -722,7 +750,10 @@ let phaseIdx=0;
 let sheetOpen=false;
 let editDraft=null;      // deep copy while editing
 let editIsNew=false;
-let ioMode=null;         // 'export' | 'import' | null
+let ioMode=null;         // 'export' | 'exportall' | 'import' | null
+let unlocked=false;      // edit lock, resets every time the page loads
+let pinOpen=false;
+let openItem=null;       // 'pi.ii' of the item whose extra controls are showing
 
 const app=document.getElementById('app');
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -744,7 +775,7 @@ function renderHome(){
     <h1 class="brand">Kneeboard<span class="tick"> ✓</span></h1>
     <p>Interactive aircraft checklists</p>
   </div>`;
-  lists.forEach(cl=>{
+  lists.forEach((cl,ix)=>{
     const chk=loadChk(cl.id);
     const st=phaseStats(cl,chk);
     const tot=st.reduce((a,s)=>a+s.tot,0), done=st.reduce((a,s)=>a+s.done,0);
@@ -758,19 +789,36 @@ function renderHome(){
         <span class="m">${pct}%</span>
       </div>
     </button>
-    <div class="cl-actions">
+    ${unlocked?`<div class="cl-actions">
       <button data-edit="${esc(cl.id)}">Edit</button>
       <button data-dup="${esc(cl.id)}">Duplicate</button>
       <button data-exp="${esc(cl.id)}">Export</button>
       ${!BUILTIN.has(cl.id)&&lists.length>1?`<button class="danger" data-del="${esc(cl.id)}">Delete</button>`:''}
-    </div>`;
+    </div>
+    <div class="clsort">
+      <button class="mini" data-clup="${ix}" ${ix===0?'disabled':''} aria-label="Move checklist up">↑</button>
+      <button class="mini" data-cldn="${ix}" ${ix===lists.length-1?'disabled':''} aria-label="Move checklist down">↓</button>
+    </div>`:''}`;
   });
-  h+=`<button class="newbtn" id="newcl">＋ &nbsp;New checklist</button>
-  <button class="newbtn" id="importcl" style="margin-top:10px">⤓ &nbsp;Import from JSON</button>`;
+  if(unlocked){
+    h+=`<button class="newbtn" id="newcl">＋ &nbsp;New checklist</button>
+    <button class="newbtn" id="importcl" style="margin-top:10px">⤓ &nbsp;Import JSON</button>
+    <button class="newbtn" id="exportall" style="margin-top:10px">⤒ &nbsp;Export everything</button>`;
+  }
+  h+=`<div class="lockrow">
+    <button class="lockbtn${unlocked?' on':''}" id="lockbtn">${unlocked?'🔓 Editing on — lock':'🔒 Unlock editing'}</button>
+    <span class="lockhint">${unlocked?'Locks again when you reload':'PIN required'}</span>
+  </div>`;
+  if(pinOpen&&!unlocked){
+    h+=`<div class="pinwrap">
+      <input type="password" inputmode="numeric" id="pinin" maxlength="8" placeholder="PIN" autocomplete="off">
+      <button class="ed-save" id="pingo">Unlock</button>
+    </div>`;
+  }
   if(ioMode){
     h+=`<div class="ed-section">
-      <label>${ioMode==='export'?'Copy this JSON to back up / move to another device':'Paste checklist JSON below'}</label>
-      <textarea class="io-box" id="iobox" ${ioMode==='export'?'readonly':''}>${ioMode==='export'?esc(ioText):''}</textarea>
+      <label>${ioMode==='import'?'Paste one checklist, or a whole backup array, below':ioMode==='exportall'?'Every checklist on this device — copy this somewhere safe':'Copy this JSON to back up / move to another device'}</label>
+      <textarea class="io-box" id="iobox" ${ioMode==='import'?'':'readonly'}>${ioMode==='import'?'':esc(ioText)}</textarea>
       <div style="display:flex;gap:10px;margin-top:8px">
         ${ioMode==='import'?'<button class="ed-save" id="iodo">Import</button>':'<button class="ed-save" id="iocopy">Copy</button>'}
         <button class="bb-btn" id="ioclose">Close</button>
@@ -799,6 +847,31 @@ function renderHome(){
     ioMode='export'; ioText=JSON.stringify(l,null,1); render();
     setTimeout(()=>{const t=document.getElementById('iobox'); if(t){t.scrollIntoView({block:'center'}); t.select();}},50);
   });
+  app.querySelectorAll('[data-clup]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.clup; if(i>0){ [lists[i-1],lists[i]]=[lists[i],lists[i-1]]; saveLists(); render(); }
+  });
+  app.querySelectorAll('[data-cldn]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.cldn; if(i<lists.length-1){ [lists[i+1],lists[i]]=[lists[i],lists[i+1]]; saveLists(); render(); }
+  });
+  const lb=document.getElementById('lockbtn');
+  if(lb) lb.onclick=()=>{
+    if(unlocked){ unlocked=false; pinOpen=false; render(); toast('Editing locked'); }
+    else { pinOpen=!pinOpen; render(); const pi=document.getElementById('pinin'); if(pi) pi.focus(); }
+  };
+  const pg=document.getElementById('pingo'), pin=document.getElementById('pinin');
+  if(pg&&pin){
+    const tryPin=()=>{
+      if(pin.value===EDIT_PIN){ unlocked=true; pinOpen=false; render(); toast('Editing unlocked'); }
+      else { pin.value=''; pin.focus(); toast('Wrong PIN'); }
+    };
+    pg.onclick=tryPin;
+    pin.onkeydown=e=>{ if(e.key==='Enter') tryPin(); };
+  }
+  const xa=document.getElementById('exportall');
+  if(xa) xa.onclick=()=>{
+    ioMode='exportall'; ioText=JSON.stringify(lists,null,1); render();
+    setTimeout(()=>{const t=document.getElementById('iobox'); if(t){t.scrollIntoView({block:'center'}); t.select();}},50);
+  };
   const nb=document.getElementById('newcl');
   if(nb) nb.onclick=()=>{ openEditor(null); };
   const ib=document.getElementById('importcl');
@@ -811,6 +884,10 @@ function renderHome(){
   const io=document.getElementById('iodo'); if(io) io.onclick=()=>{
     try{
       const o=JSON.parse(document.getElementById('iobox').value);
+      if(Array.isArray(o)){
+        if(!o.length||!o[0].name||!Array.isArray(o[0].phases)) throw 0;
+        lists=o; saveLists(); ioMode=null; render(); toast('Replaced all checklists'); return;
+      }
       if(!o.name||!Array.isArray(o.phases)) throw 0;
       o.id='cl_'+Math.random().toString(36).slice(2,9);
       lists.push(o); saveLists(); ioMode=null; render(); toast('Imported');
@@ -956,6 +1033,7 @@ function vsheetHtml(cl){
 
 /* ================= render: editor ================= */
 function openEditor(id){
+  if(!unlocked){ toast('Unlock editing first'); return; }
   if(id){ editDraft=JSON.parse(JSON.stringify(lists.find(l=>l.id===id))); editIsNew=false; }
   else{
     editDraft={id:'cl_'+Math.random().toString(36).slice(2,9),name:'',sub:'',
@@ -993,11 +1071,28 @@ function renderEdit(){
         ${kind==='item'?`<input type="text" class="rsp" value="${esc(it.r||'')}" data-r="${pi}.${ii}" placeholder="Response">`:''}
         <button class="mini" data-iup="${pi}.${ii}" aria-label="Move up">↑</button>
         <button class="mini" data-idn="${pi}.${ii}" aria-label="Move down">↓</button>
+        <button class="mini" data-imore="${pi}.${ii}" aria-label="More options">⋯</button>
         <button class="mini del" data-idel="${pi}.${ii}" aria-label="Delete item">✕</button>
       </div>`;
       if(kind==='item'){
         h+=`<div class="ed-item" style="padding-top:0;border-top:none">
           <input type="text" value="${esc(it.n||'')}" data-n="${pi}.${ii}" placeholder="Caution / note (optional)" style="font-size:12.5px;color:var(--amb)">
+        </div>`;
+      }
+      if(openItem===pi+'.'+ii){
+        h+=`<div class="ed-more">
+          <span class="lbl">Type</span>
+          <select data-ikind="${pi}.${ii}">
+            <option value="item"${kind==='item'?' selected':''}>Challenge / response</option>
+            <option value="section"${kind==='section'?' selected':''}>Section header</option>
+            <option value="note"${kind==='note'?' selected':''}>Note</option>
+          </select>
+          <button data-idup="${pi}.${ii}">Duplicate</button>
+          ${d.phases.length>1?`<span class="lbl">Move to</span>
+          <select data-imove="${pi}.${ii}">
+            <option value="">this phase</option>
+            ${d.phases.map((p2,pj)=>pj===pi?'':`<option value="${pj}">${esc(p2.name||'Phase '+(pj+1))}</option>`).join('')}
+          </select>`:''}
         </div>`;
       }
     });
@@ -1007,7 +1102,34 @@ function renderEdit(){
       <button data-addn="${pi}">＋ Note</button>
     </div></div>`;
   });
-  h+=`<button class="ed-bigadd" id="addphase">＋ Add phase</button>
+  h+=`<button class="ed-bigadd" id="addphase">＋ Add phase</button>`;
+
+  /* ---- V-speed groups ---- */
+  d.vgroups=d.vgroups||[];
+  h+=`<div class="ed-section"><label>V-speeds shown in the reference sheet</label></div>`;
+  d.vgroups.forEach((g,gi)=>{
+    h+=`<div class="ed-phase">
+      <div class="ed-phead">
+        <input type="text" value="${esc(g.t||'')}" data-vgt="${gi}" placeholder="Group heading, e.g. Single Engine">
+        <button class="mini" data-vgup="${gi}" aria-label="Move group up">↑</button>
+        <button class="mini" data-vgdn="${gi}" aria-label="Move group down">↓</button>
+        <button class="mini del" data-vgdel="${gi}" aria-label="Delete group">✕</button>
+      </div>`;
+    (g.v||[]).forEach((row,ri)=>{
+      h+=`<div class="vrow">
+        <input type="text" class="va" value="${esc(row[0]||'')}" data-vc="${gi}.${ri}.0" placeholder="Vyse">
+        <input type="text" class="vd" value="${esc(row[1]||'')}" data-vc="${gi}.${ri}.1" placeholder="Best Rate 1 Eng.">
+        <input type="text" class="vk" value="${esc(row[2]||'')}" data-vc="${gi}.${ri}.2" placeholder="KIAS">
+        <input type="text" class="vm" value="${esc(row[3]||'')}" data-vc="${gi}.${ri}.3" placeholder="MPH">
+        <button class="mini" data-vrup="${gi}.${ri}" aria-label="Move speed up">↑</button>
+        <button class="mini" data-vrdn="${gi}.${ri}" aria-label="Move speed down">↓</button>
+        <button class="mini del" data-vrdel="${gi}.${ri}" aria-label="Delete speed">✕</button>
+      </div>`;
+    });
+    h+=`<div class="ed-add"><button data-vradd="${gi}">＋ Speed</button></div></div>`;
+  });
+  h+=`<button class="ed-bigadd" id="addvgroup">＋ Add V-speed group</button>
+  <label class="ed-toggle"><input type="checkbox" id="edemerg" ${d.emerg?'checked':''}> Emergency checklist (red styling on the home screen)</label>
   <div class="ed-section" style="margin-bottom:30px">
     <label>Notes shown in the V-speeds sheet (one per line)</label>
     <textarea class="io-box" id="ednotes" style="height:110px">${esc((d.notes||[]).join('\n'))}</textarea>
@@ -1022,6 +1144,9 @@ function renderEdit(){
     app.querySelectorAll('[data-c]').forEach(i=>{const[p,x]=i.dataset.c.split('.');d.phases[+p].items[+x].c=i.value;});
     app.querySelectorAll('[data-r]').forEach(i=>{const[p,x]=i.dataset.r.split('.');d.phases[+p].items[+x].r=i.value;});
     app.querySelectorAll('[data-n]').forEach(i=>{const[p,x]=i.dataset.n.split('.');d.phases[+p].items[+x].n=i.value;});
+    const em=document.getElementById('edemerg'); if(em) d.emerg=em.checked;
+    app.querySelectorAll('[data-vgt]').forEach(i=>{d.vgroups[+i.dataset.vgt].t=i.value;});
+    app.querySelectorAll('[data-vc]').forEach(i=>{const[g,r,c]=i.dataset.vc.split('.').map(Number);d.vgroups[g].v[r][c]=i.value;});
   };
   const rerender=()=>{syncInputs();renderEdit();};
 
@@ -1035,6 +1160,10 @@ function renderEdit(){
     if(!d.name.trim()){toast('Give the checklist a name');return;}
     d.phases.forEach(ph=>{ph.items=ph.items.filter(it=>String(it.c||'').trim()!=='');});
     d.phases=d.phases.filter(ph=>ph.items.length||ph.name.trim());
+    d.vgroups=(d.vgroups||[]).map(g=>({t:g.t,v:(g.v||[]).filter(r=>r.some(c=>String(c||'').trim()!==''))}))
+                             .filter(g=>g.v.length||String(g.t||'').trim()!=='');
+    openItem=null;
+    d.edited=true;
     const ix=lists.findIndex(l=>l.id===d.id);
     if(ix>=0)lists[ix]=d; else lists.push(d);
     saveLists(); editDraft=null; view='home'; render(); toast('Saved');
@@ -1052,6 +1181,43 @@ function renderEdit(){
   app.querySelectorAll('[data-idel]').forEach(b=>b.onclick=()=>{const[p,x]=b.dataset.idel.split('.').map(Number);syncInputs();d.phases[p].items.splice(x,1);renderEdit();});
   app.querySelectorAll('[data-iup]').forEach(b=>b.onclick=()=>{const[p,x]=b.dataset.iup.split('.').map(Number);if(x>0){syncInputs();const a=d.phases[p].items;[a[x-1],a[x]]=[a[x],a[x-1]];renderEdit();}});
   app.querySelectorAll('[data-idn]').forEach(b=>b.onclick=()=>{const[p,x]=b.dataset.idn.split('.').map(Number);const a=d.phases[p].items;if(x<a.length-1){syncInputs();[a[x+1],a[x]]=[a[x],a[x+1]];renderEdit();}});
+
+  /* per-item extra controls */
+  app.querySelectorAll('[data-imore]').forEach(b=>b.onclick=()=>{
+    syncInputs(); openItem = openItem===b.dataset.imore ? null : b.dataset.imore; renderEdit();
+  });
+  app.querySelectorAll('[data-ikind]').forEach(sel=>sel.onchange=()=>{
+    const[p,x]=sel.dataset.ikind.split('.').map(Number); syncInputs();
+    const it=d.phases[p].items[x];
+    if(sel.value==='item'){ delete it.k; it.r=it.r||''; }
+    else { it.k=sel.value; delete it.r; delete it.n; }
+    renderEdit();
+  });
+  app.querySelectorAll('[data-idup]').forEach(b=>b.onclick=()=>{
+    const[p,x]=b.dataset.idup.split('.').map(Number); syncInputs();
+    d.phases[p].items.splice(x+1,0,JSON.parse(JSON.stringify(d.phases[p].items[x])));
+    openItem=null; renderEdit();
+  });
+  app.querySelectorAll('[data-imove]').forEach(sel=>sel.onchange=()=>{
+    if(sel.value==='') return;
+    const[p,x]=sel.dataset.imove.split('.').map(Number); syncInputs();
+    const it=d.phases[p].items.splice(x,1)[0];
+    d.phases[+sel.value].items.push(it);
+    openItem=null; renderEdit(); toast('Moved to '+(d.phases[+sel.value].name||'phase'));
+  });
+
+  /* V-speed groups */
+  document.getElementById('addvgroup').onclick=()=>{syncInputs();d.vgroups.push({t:'',v:[['','','','']]});renderEdit();};
+  app.querySelectorAll('[data-vradd]').forEach(b=>b.onclick=()=>{syncInputs();d.vgroups[+b.dataset.vradd].v.push(['','','','']);renderEdit();});
+  app.querySelectorAll('[data-vgdel]').forEach(b=>b.onclick=()=>{
+    if(!b.dataset.armed) toast('Tap ✕ again to delete this group');
+    armConfirm(b,()=>{syncInputs();d.vgroups.splice(+b.dataset.vgdel,1);renderEdit();},'✕');
+  });
+  app.querySelectorAll('[data-vgup]').forEach(b=>b.onclick=()=>{const i=+b.dataset.vgup;if(i>0){syncInputs();[d.vgroups[i-1],d.vgroups[i]]=[d.vgroups[i],d.vgroups[i-1]];renderEdit();}});
+  app.querySelectorAll('[data-vgdn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.vgdn;if(i<d.vgroups.length-1){syncInputs();[d.vgroups[i+1],d.vgroups[i]]=[d.vgroups[i],d.vgroups[i+1]];renderEdit();}});
+  app.querySelectorAll('[data-vrdel]').forEach(b=>b.onclick=()=>{const[g,r]=b.dataset.vrdel.split('.').map(Number);syncInputs();d.vgroups[g].v.splice(r,1);renderEdit();});
+  app.querySelectorAll('[data-vrup]').forEach(b=>b.onclick=()=>{const[g,r]=b.dataset.vrup.split('.').map(Number);if(r>0){syncInputs();const a=d.vgroups[g].v;[a[r-1],a[r]]=[a[r],a[r-1]];renderEdit();}});
+  app.querySelectorAll('[data-vrdn]').forEach(b=>b.onclick=()=>{const[g,r]=b.dataset.vrdn.split('.').map(Number);const a=d.vgroups[g].v;if(r<a.length-1){syncInputs();[a[r+1],a[r]]=[a[r],a[r+1]];renderEdit();}});
 }
 
 /* ================= misc ================= */
