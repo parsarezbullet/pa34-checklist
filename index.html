@@ -46,7 +46,7 @@
     --shadow:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35);
     --sheet-shadow:0 -8px 32px rgba(0,0,0,.6);
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
   html,body{margin:0;padding:0;}
   body{
     background:var(--bg); color:var(--ink);
@@ -348,6 +348,22 @@
   .vrow input.vk,.vrow input.vm{flex:.75; font-family:'IBM Plex Mono',monospace; color:var(--val);}
   .ed-toggle{display:flex; align-items:center; gap:10px; margin:18px 14px 0; font-size:14px; color:var(--ink);}
   .ed-toggle input{width:20px; height:20px; accent-color:var(--val); padding:0;}
+  /* ---- touch devices ----
+     iOS zooms the whole page when you focus an input smaller than 16px, and the
+     zoom sticks. Bump every field to 16px (!important beats the inline sizes on
+     the note fields), then let the tight editor rows wrap so the bigger text
+     still fits on a phone. Must stay last in the sheet to win the flex rules. */
+  @media (pointer: coarse){
+    input,textarea,select{font-size:16px !important;}
+    .ed-item{flex-wrap:wrap;}
+    .ed-item input.chl{flex:1 1 100%;}
+    .ed-item input.rsp{flex:1 1 40%;}
+    .ed-vrow,.vrow{flex-wrap:wrap;}
+    .vrow input.va{flex:1 1 26%;}
+    .vrow input.vd{flex:1 1 60%;}
+    .vrow input.vk,.vrow input.vm{flex:1 1 22%;}
+    .ed-more select{font-size:16px;}
+  }
 </style>
 
 <div id="app"></div>
